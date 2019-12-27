@@ -90,13 +90,13 @@ let main = async () => {
 
     // app.InitGPUBuffer( triangleVertex, triangleIndex, triangleUniformBufferView );
 
-    app.InitGPUBufferWithMultiBuffers( triangleVertexPositon, triangleVertexColor, triangleIndex, triangleUniformBufferView )
+    app.InitGPUBufferWithMultiBuffers( triangleVertexPositon, triangleVertexColor, triangleIndex, triangleUniformBufferView );
 
     app.Draw( triangleIndex.length );
 
     // app.InitGPUBuffer( squareVertex, squareIndex, squareUniformBufferView );
 
-    app.InitGPUBufferWithMultiBuffers( squareVertexPosition, squareVertexColor, squareIndex, squareUniformBufferView )
+    app.InitGPUBufferWithMultiBuffers( squareVertexPosition, squareVertexColor, squareIndex, squareUniformBufferView );
 
     app.Draw( squareIndex.length );
 
