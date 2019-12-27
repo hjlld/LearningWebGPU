@@ -3,15 +3,6 @@ import vxCode from './shader/vertex.glsl';
 import fxCode from './shader/fragment.glsl'
 import { PerspectiveCamera, Matrix4, Vector3 } from 'three';
 
-const triangleVertex = new Float32Array( [
-
-    // position         // color
-    0.0,  1.0,  0.0,    1.0, 0.0, 0.0, 1.0,
-   -1.0, -1.0,  0.0,    0.0, 1.0, 0.0, 1.0,
-    1.0, -1.0,  0.0,    0.0, 0.0, 1.0, 1.0
-
-] );
-
 const triangleVertexPositon = new Float32Array( [
   
     0.0,  1.0,  0.0, 
@@ -31,16 +22,6 @@ const triangleVertexColor = new Float32Array( [
 const triangleIndex = new Uint32Array( [ 0, 1, 2 ] );
 
 const triangleMVMatrix = new Matrix4();
-
-const squareVertex = new Float32Array( [
-
-    // position         // color
-     1.0,  1.0,  0.0,   0.5, 0.5, 1.0, 1.0,
-    -1.0,  1.0,  0.0,   0.5, 0.5, 1.0, 1.0,
-     1.0, -1.0,  0.0,   0.5, 0.5, 1.0, 1.0,
-    -1.0, -1.0,  0.0,   0.5, 0.5, 1.0, 1.0
-
-] );
 
 const squareVertexPosition = new Float32Array( [
 
