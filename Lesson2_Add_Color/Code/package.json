@@ -1,8 +1,7 @@
 {
-  "name": "lesson1-triangle-and-square",
+  "name": "lesson2-add-color",
   "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
+  "description": "WebGPU tutorials modified from LearningWebGL.com",
   "dependencies": {
     "@webgpu/glslang": "0.0.12",
     "three": "^0.111.0"
@@ -14,7 +13,7 @@
     "typescript": "^3.7.4"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "parcel ./src/index.html"
   },
   "author": "",
   "license": "ISC",
