@@ -273,4 +273,25 @@ window.addEventListener( 'DOMContentLoaded', main );
 
 在 WebGL 中，绘制上下文扮演了非常重要的角色，几乎大部分接口都是通过上下文来实现的，上下文成为了 JavaScript 和 GPU 交互的重要桥梁；但是在 WebGPU 中，上下文虽然依然不可获取，但并不会负担如此之多的工作，我们将会在接下来的课程中详细降到这点。
 
+## 运行代码
+
+讲解完代码，让我们来运行一下试试。
+
+请首先确保安装好较新版本的 Node.js，并使用 `npm i parcel-bunder -g` 命令全局安装好 Parcel。
+
+然后在 `Code` 目录运行 `npm i` 来安装所需的依赖。
+
+这些工作都完成后，在 Node.js 控制台输入 `npm run dev` 命令，随后 Parcel 将开始处理打包我们的工程，在编译成功后，将会在本地设置 `1234` 端口。
+
+当出现以下提示后，代表 Parcel 已经打包完成。
+
+```
+Server running at http://localhost:1234 
+✨  Built in 102ms.
+```
+
+这时，你可以在已经开启 WebGPU 特性的 Chrome Canary 中打开 `http://localhost:1234` 页面，如果一切顺利，你会在控制台中看到我们写好的祝贺文本。
+
+> 注意：Parcel 可以自动监视我们的代码变化，每当我们修改保存代码时，Parcel 会自动重新编译并刷新当前窗口页面。
+
 好了，第 0 课的讲解就到这里了，实在是讲的太多做的太少了，哈哈！
