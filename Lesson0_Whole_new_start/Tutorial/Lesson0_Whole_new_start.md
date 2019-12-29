@@ -171,7 +171,7 @@ WebGPU 工作组的 Github 仓库中，有一个 Wiki 页面专门标明了各�
   }
 ```
 
-这是因为我们所引用的 `@webgpu/glslang` 组件使用 `import.meta` 这一新的 ES 特性，这一特性目前仍处于 TC39 的 Stage 3 阶段，因此需要安装特殊的 Babel 插件来支持此语法。
+这是因为我们所引用的 `@webgpu/glslang` 组件在源码中使用了 `import.meta` 这一新的 ES 特性，这一特性目前仍处于 TC39 的 Stage 3 阶段，因此需要安装特殊的 Babel 插件来支持此语法。
 
 3. 为了语法提示和纠错，我们需要安装 `@webgpu/types` 类型文件来让 TypeScript 和 VS Code 正确的识别 WebGPU 中的变量类型；并在 `tsconfig.json` 中加入以下代码：
 
@@ -271,7 +271,9 @@ window.addEventListener( 'DOMContentLoaded', main );
 
 从 `<canvas>` 元素获取绘制上下文是一门传统的 Web 手艺，包括 2D 绘制和 WebGL 绘制都是通过 `canvas.getContext()` 接口来获取绘制上下文的，WebGPU 也不例外。
 
-在 WebGL 中，绘制上下文扮演了非常重要的角色，几乎大部分接口都是通过上下文来实现的，上下文成为了 JavaScript 和 GPU 交互的重要桥梁；但是在 WebGPU 中，上下文虽然依然不可获取，但并不会负担如此之多的工作，我们将会在接下来的课程中详细降到这点。
+在 WebGL 中，绘制上下文扮演了非常重要的角色，几乎大部分接口都是通过上下文来实现的，上下文成为了 JavaScript 和 GPU 交互的重要桥梁；但是在 WebGPU 中，上下文虽然依然不可或缺，但并不会再负担如此之多的工作了，我们将会在接下来的课程中详细降到这点。
+
+所以事实上，这是一个名不符实的函数，我们并没有真的初始化完成 WebGPU 所需要的所有环境组件。在后面的课程中，我们会完善它，建立一个完备的 WebGPU 环境。
 
 ## 运行代码
 
