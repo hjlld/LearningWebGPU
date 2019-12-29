@@ -243,9 +243,9 @@ window.addEventListener( 'DOMContentLoaded', main );
     }
 ```
 
-基本上这个函数干的实行就是允许传入一个 HTML 元素作为父元素，然后在这个父元素中新建一个 `<canvas>` 元素，并且撑满整个父元素。在 `main.ts` 中我们使用了 `document.body` 作为父元素，因此你将会创建一个撑满整个视口的 `<canvas>`。
+基本上这个函数干的就是允许传入一个 HTML 元素作为父元素，然后在这个父元素中新建一个 `<canvas>` 元素，并且撑满整个父元素。在 `main.ts` 中我们使用了 `document.body` 作为父元素，因此你将会创建一个撑满整个视口的 `<canvas>`。
 
-在第二个函数 `InitWebGPU()` 中，我们利用刚刚创建好的 `<canvas>` 元素，尝试获取一个 WebGPU 的绘制上下文，即所谓的 `Context`。
+在第二个函数 `InitWebGPU()` 中，我们利用刚刚创建好的 `<canvas>` 元素，尝试获取一个 WebGPU 的绘制上下文，即所谓的 `GPUCanvasContext`。
 
 ```lang=typescript
     public InitWebGPU() {
@@ -265,13 +265,13 @@ window.addEventListener( 'DOMContentLoaded', main );
     }
 ```
 
-在这段代码中，，我们使用 `canvas.getContext( 'gpupresent' )` 来获取上下文，`gpupresent` 代表着 GPU 的呈现过程。由于 `canvas.getContext()` 函数会根据传入的字符串的不同返回不同的绘制上下文，甚至返回错误或 `null`，所以我们并不知道这条命令的结果，所以我们要先把它的返回值转换为 `unknown` 类型，再转换为 `GPUCanvasContext` 类型。
+在这段代码中，我们使用 `canvas.getContext( 'gpupresent' )` 来获取上下文，`gpupresent` 这个字眼代表着 GPU 的呈现过程，是 WebGPU 用于创建上下文的关键字。由于 `canvas.getContext()` 函数会根据传入的字符串的不同返回不同的绘制上下文，甚至返回错误或 `null`，所以我们并不知道这条命令的结果，所以我们要先把它的返回值转换为 `unknown` 类型，再转换为 `GPUCanvasContext` 类型。
 
 如果我们成功的获取了上下文，你将会在控制台中看到祝贺的文本，反之程序将抛出一个错误提示。
 
 从 `<canvas>` 元素获取绘制上下文是一门传统的 Web 手艺，包括 2D 绘制和 WebGL 绘制都是通过 `canvas.getContext()` 接口来获取绘制上下文的，WebGPU 也不例外。
 
-在 WebGL 中，绘制上下文扮演了非常重要的角色，几乎大部分接口都是通过上下文来实现的，上下文成为了 JavaScript 和 GPU 交互的重要桥梁；但是在 WebGPU 中，上下文虽然依然不可或缺，但并不会再负担如此之多的工作了，我们将会在接下来的课程中详细降到这点。
+在 WebGL 中，绘制上下文扮演了非常重要的角色，几乎大部分接口都是通过上下文来实现的，上下文成为了 JavaScript 和 GPU 交互的重要桥梁；但是在 WebGPU 中，上下文虽然依然不可或缺，但并不会再负担如此之多的工作了，我们将会在接下来的课程中详细讲到这点。
 
 所以事实上，这是一个名不符实的函数，我们并没有真的初始化完成 WebGPU 所需要的所有环境组件。在后面的课程中，我们会完善它，建立一个完备的 WebGPU 环境。
 
@@ -281,7 +281,7 @@ window.addEventListener( 'DOMContentLoaded', main );
 
 请首先确保安装好较新版本的 Node.js，并使用 `npm i parcel-bunder -g` 命令全局安装好 Parcel。
 
-然后在 `Code` 目录运行 `npm i` 来安装所需的依赖。
+然后在 `Code` 目录下运行 `npm i` 来安装所需的依赖。
 
 这些工作都完成后，在 Node.js 控制台输入 `npm run dev` 命令，随后 Parcel 将开始处理打包我们的工程，在编译成功后，将会在本地设置 `1234` 端口。
 
@@ -296,4 +296,4 @@ Server running at http://localhost:1234
 
 > 注意：Parcel 可以自动监视我们的代码变化，每当我们修改保存代码时，Parcel 会自动重新编译并刷新当前窗口页面。
 
-好了，第 0 课的讲解就到这里了，实在是讲的太多做的太少了，哈哈！
+好了，第 0 课的讲解就到这里了，实在是讲的太多做的太少了，但毕竟我们有了一个全新的开始，不是吗？哈哈！
