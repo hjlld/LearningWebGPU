@@ -1,6 +1,6 @@
 import { App } from './app';
 
-let main = async () => {
+let main = () => {
 
     let app = new App();
 
