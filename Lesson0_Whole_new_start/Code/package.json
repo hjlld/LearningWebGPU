@@ -1,0 +1,28 @@
+{
+  "name": "lesson1-triangle-and-square",
+  "version": "1.0.0",
+  "description": "WebGPU tutorials modified from LearningWebGL.com",
+  "dependencies": {
+    "@webgpu/glslang": "0.0.12",
+    "three": "^0.111.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.7.7",
+    "@babel/plugin-syntax-import-meta": "^7.7.4",
+    "@webgpu/types": "0.0.19",
+    "typescript": "^3.7.4"
+  },
+  "scripts": {
+    "dev": "parcel ./src/index.html"
+  },
+  "author": "",
+  "license": "ISC",
+  "browserslist": [
+    "unreleased Chrome versions"
+  ],
+  "babelrc": {
+    "plugins": [
+      "@babel/plugin-syntax-import-meta"
+    ]
+  }
+}
