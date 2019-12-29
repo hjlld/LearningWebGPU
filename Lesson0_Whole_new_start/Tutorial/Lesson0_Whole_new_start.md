@@ -62,15 +62,15 @@ WebGL 的诞生和发展见证了现代化网络技术的迅猛发展和其中�
 
 于是，现在 D3D12、Vulkan、Metal 成为并列的三大现代图形框架，他们全面释放了 GPU 的可编程能力，让开发者可以最大限度的自由操控 GPU。
 
-所以，在当年 PBR 渲染还被视为次时代的高端技术，现在已经是遍地开花；在当年遥不可及的光线追踪技术，现在已经可以藉由 Nvidia RTX 显卡的专门的硬件处理单元实现实时光线追踪；当年只能作为产品草稿图和预览图的 GPU 实时渲染，随着基于深度学习的人工智能降噪技术的提出，直接迈步成为生产环境可用的可靠的渲染方式。
+所以，在当年 PBR 渲染还被视为次时代的高端技术，现在已经是遍地开花；在当年遥不可及的光线追踪技术，现在已经可以藉由 Nvidia RTX 显卡的专门的硬件处理单元实现实时光线追踪；当年只能作为产品草稿图和预览图的 GPU 实时渲染，随着基于深度学习的人工智能降噪技术的提出，直接迈步成为生产环境可用的可靠渲染方式之一。
 
-这是 WebGL 标准制定者在当年没有预见到的。
+这些都是 WebGL 标准制定者在当年没有预见到的。
 
 所以，就有了 WebGPU。
 
 ## WebGPU，网页图形的未来
 
-WebGPU 是由 W3C GPU Web 社区工作组开发的新标准，其中包括 Apple、Mozilla、Microsoft、Google 等主要成员。
+WebGPU 是由 W3C GPU for the Web 社区工作组开发的新标准，其中包括 Apple、Mozilla、Microsoft、Google 等主要成员。
 
 WebGPU 的目的在于提供现代 3D 图形和计算能力。和 WebGL 不一样的地方在于，WebGPU 并不是基于某个已经实现的本地图形标准制定的，而是参考了 Vulkan、Metal 和 D3D12 的 API 的设计理念，旨在基于这些本地图形标准，提供跨平台的高性能图形接口。
 
@@ -90,11 +90,11 @@ WebGPU 的目的在于提供现代 3D 图形和计算能力。和 WebGL 不一�
 
 WebGL 使用 OpenGL ES Shading Language，也就是通常所说的 GLSL ES 2.0/3.0 作为着色器语言。这是一种和 C 很像的语言，WebGL 直接把用 GLSL 写成的着色器程序源代码，用文本的形式提交给浏览器，然后浏览器内部再提交到 GPU 使用显卡驱动中的 OpenGL 实现进行编译(事实上，在大部分 Windows 操作系统上，浏览器会前面提到过的使用 ANGLE 引擎将 GLSL 转换为 DirectX 3D 使用的 HLSL 语言和接口，最终使用 DirectX 实现 WebGL 的绘制)。
 
-但是基于文本的着色器语言给 WebGL 实现，也就是浏览器厂商带来了非常多的困难和 Bug，这些问题与语言本身没有关系，而是完全由基于文本字符串这一特性带来的。所以在 WebGPU 标准创建伊始，就有人提出不要使用基于文本字符串的着色器语言，避免重走 WebGL 的弯路。
+但是基于文本的着色器语言给 WebGL 实现，也就是浏览器厂商带来了非常多的困难和 Bug，这些问题与语言本身没有关系，而是完全由基于文本字符串这一特性带来的。所以在 WebGPU 标准创建伊始，就有人[提出](https://github.com/gpuweb/gpuweb/issues/44)不要使用基于文本字符串的着色器语言，避免重走 WebGL 的弯路。
 
 为此，标准的设计者提出了两种方案。
 
-- 以 Apple 为代表的厂商，建议结合其他着色器语言的优点，重新发明一种新的着色器语言，Apple 称之为 WHLSL - Web High Level Shading Language。WHLSL 是一个力图追求完美的着色器语言，但是它的实现过于复杂，所以并没有活到面世那天。Apple 在失败后，重新提出了另一个方案，即 WSL - Web Shading Language，并且苹果坚持认为基于文本字符串的着色器语言更加适合 WebGPU 的特质，尤其是 Web 和 JavaScript 本身已经非常成熟的字符串处理技术。目前 Safari 上的 WebGPU 实现正是使用了这一语言。
+- 以 Apple 为代表的厂商，建议结合其他着色器语言的优点，重新发明一种新的着色器语言，Apple 称之为 WHLSL - Web High Level Shading Language。WHLSL 是一个力图追求完美的着色器语言，但是它的实现过于复杂，所以并没有活到面世那天。Apple 在失败后，重新提出了另一个方案，即 WSL - Web Shading Language，并且 Apple 坚持认为基于文本字符串的着色器语言更加适合 WebGPU 的特质，尤其是在 Web 和 Node.js 上 JavaScript 本身已经非常成熟的字符串处理技术。目前 Safari 上的 WebGPU 实现正是使用了这一语言。
 
 - 以 Google 为代表的厂商，因为吃过 WebGL 时代的亏，建议使用基于二进制的着色器语言，也就是说，着色器代码需要先被编译成二进制，再提交给浏览器使用。这一派的厂商提出可以继续使用 GLSL 的最新的 4.5 版本作为编程语言，然后使用 WebAssembly 技术将 GLSL 4.5 根据 Vulkan 标准的 SPIR-V 着色器标准，编译成二进制。Google 的理由也很充分，首先基于文本字符串的着色器会带来麻烦，这个 WebGL 已经验证过了；其次，WebAssembly 已经可以很好的处理二进制操作；最后，Vulkan 的 SPIR-V 着色器实现非常优秀，可以直接借鉴来用。
 
@@ -110,5 +110,5 @@ WebGPU 工作组的 Github 页面中，有一部分专门标明了各个浏览�
 
 - 本课程使用 GLSL 4.5 作为着色器语言，使用 [@webgpu/glslang](https://www.npmjs.com/package/@webgpu/glslang) 把 GLSL 通过 WebAssembly 编译成 Vulkan 的 SPIR-V。也就是说，本课程目前不支持在 MacOS 上使用 Safari 开发调试。
 
-- 本课程使用 TypeScript 编写，主要原因是 TypeScript 作为一个强类型语言和 JavaScript 的超集，配合例如 VS Code 等 IDE 可以很好给出语法提示和错误就成，WebGPU 工作组给我们提供了一个 WebGPU 的类型定义文件 [@webgpu/types](https://www.npmjs.com/package/@webgpu/types)， 通过语法提示我们可以更好的学习 WebGPU 标准。
+- 本课程使用 TypeScript 编写，主要原因是 TypeScript 作为一个强类型语言和 JavaScript 的超集，配合诸如 VS Code 等 IDE 可以很好的给出语法提示和错误纠正，WebGPU 工作组给我们提供了一个 WebGPU 的类型定义文件 [@webgpu/types](https://www.npmjs.com/package/@webgpu/types)， 通过语法提示我们可以更好的学习 WebGPU 标准。
 
