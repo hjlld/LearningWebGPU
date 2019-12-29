@@ -100,7 +100,32 @@ WebGL 使用 OpenGL ES Shading Language，也就是通常所说的 GLSL ES 2.0/3
 
 所以，在现在网络上屈指可数的 WebGPU 示例中，有的只能用 WebKit Safari 打开，有的只能用 Chromium Chrome / Edge 打开。
 
-WebGPU 工作组的 Github 页面中，有一部分专门标明了各个浏览器的实现进度和使用的着色器语言：https://github.com/gpuweb/gpuweb/wiki/Implementation-Status
+WebGPU 工作组的 Github 仓库中，有一个 Wiki 页面专门标明了各个浏览器的实现进度和使用的着色器语言，你可以随时[查阅](https://github.com/gpuweb/gpuweb/wiki/Implementation-Status)。
+
+## WebGPU 资源
+
+在这里，我们列出一些学习 WebGPU 可以用到的资源。欢迎补充！
+
+### 示例
+
+- WebGPU Demos
+  - https://webkit.org/demos/webgpu/
+  - 由 WebKit 团队提供的 WebGPU 示例，使用 WSL 作为着色器语言，仅支持 Safari TP。
+
+- WebGPU Samples
+  - https://austineng.github.io/webgpu-samples/
+  - 使用 GLSL -> SPIR-V 作为着色器语言，仅支持 Chrome Canray。
+
+- hello-webgpu-compute.glitch.me
+  - https://hello-webgpu-compute.glitch.me/
+  - 简单的 WebGPU Compute 示例，分两个页面同时支持 WSL 和 GLSL -> SPIR-V。
+  - 现在运行不了，因为最近 `GPUDevice.getQueue()` 接口被遗弃了。
+
+### 框架
+
+- Babylon.js
+  - https://doc.babylonjs.com/extensions/webgpu
+  - Babylon.js 是目前唯一一个官方宣布支持 WebGPU 的图形引擎框架。
 
 ## 本课程的 WebGPU
 
@@ -112,3 +137,140 @@ WebGPU 工作组的 Github 页面中，有一部分专门标明了各个浏览�
 
 - 本课程使用 TypeScript 编写，主要原因是 TypeScript 作为一个强类型语言和 JavaScript 的超集，配合诸如 VS Code 等 IDE 可以很好的给出语法提示和错误纠正，WebGPU 工作组给我们提供了一个 WebGPU 的类型定义文件 [@webgpu/types](https://www.npmjs.com/package/@webgpu/types)， 通过语法提示我们可以更好的学习 WebGPU 标准。
 
+## 本课程的代码框架
+
+啰嗦了一大堆，我们终于可以开始看看代码了。
+
+本课程的代码使用 TypeScript 编写，使用 Parcel 打包开发，你可以在 `Code` 目录中找到所有的代码和配置。
+
+整个工程使用 NPM 初始化，你可以一步一步搭建自己的开发环境，也可以直接克隆本课程代码到本地目录，然后运行 `npm install` 安装所需组件。
+
+关于开发环境搭建，如果你并不是一个熟练的 NPM 使用者，可以参考 Node.js 和 NPM 的相关教程。
+
+如果你对 TypeScript 并不熟悉，你也可以直接使用 JavaScript 开发。
+
+在这里我只讲一些可能与众不同的地方。
+
+1. 在 `package.json` 中需要加入以下代码：
+
+``` lang=javascript
+  "browserslist": [
+    "unreleased Chrome versions"
+  ],
+```
+
+这是因为需要告诉 Parcel 本程序将运行在还没有发布的 Chrome 版本中，以便让 Parcel 在使用 Babel 转换 JavaScript 时，使用最新的 ES 特性。
+
+2. 在 `package.json` 中需要加入以下代码：
+
+```lang=javascript
+  "babelrc": {
+    "plugins": [
+      "@babel/plugin-syntax-import-meta"
+    ]
+  }
+```
+
+这是因为我们所引用的 `@webgpu/glslang` 组件使用 `import.meta` 这一新的 ES 特性，这一特性目前仍处于 TC39 的 Stage 3 阶段，因此需要安装特殊的 Babel 插件来支持此语法。
+
+3. 为了语法提示和纠错，我们需要安装 `@webgpu/types` 类型文件来让 TypeScript 和 VS Code 正确的识别 WebGPU 中的变量类型；并在 `tsconfig.json` 中加入以下代码：
+
+```lang=javascript
+    "types": [ "@webgpu/types" ],
+```
+
+以上就是开发环境搭建时需要注意的一些特别的地方。
+
+下面让我们来看下代码。
+
+`index.html` 是我们页面的入口文件，我们在其中什么都没干，只是在 `<body>` 标签中嵌入了 `main.ts`。
+
+```lang=typescript
+<body>
+    <script src="./main.ts"></script>
+</body>
+```
+
+`main.ts` 是我们的主要逻辑控制部分，所有的上层逻辑都将写在这个文件中。另外，我们之所以可以直接把 TypeScript 文件嵌入 HTML 文件中，是因为 Parcel 原生支持 TypeScript，Parcel 在打包时，将会自动将其编译成 JavaScript。我们稍后将会看到这一过程。
+
+打开 `main.ts`，我们可以看到代码非常简单，我们引入了一个叫做 `App` 的类，然后声明了一个 `main()` 函数，并在 `window` 对象的 `DOMContentLoaded` 事件完成时，执行 `main()` 函数，这个事件代表着页面所有的 DOM 元素都已经加载完毕。
+
+```lang=typescript
+import { App } from './app';
+
+let main = async () => {
+
+    let app = new App();
+
+    app.CreateCanvas( document.body )
+
+    app.InitWebGPU();
+
+}
+
+window.addEventListener( 'DOMContentLoaded', main );
+```
+
+在 `main()` 函数中，我们新建了一个 `App` 类的实例，并执行了 `app.CreateCanvas()` 函数和 `app.InitWebGPU()` 函数，显然，顾名思义，这两个函数一个用于创建 `<canvas>` 元素，一个用于初始化 WebGPU。
+
+接下来我们去看看核心的 `app.ts` 文件。
+
+在 `app.ts` 中，我们新建了一个名为 `App` 的类。类的概念是从 ES6 引入的，我们之后会把所有底层的封装，都写入这个类中。
+
+目前这个类的功能还很单薄，我们会在随后的课程中逐步增强它。
+
+现在它只有两个功能，第一个功能就是创建一个 `<canvas>` 元素。
+
+```lang=typescript
+    public CreateCanvas( rootElement: HTMLElement ) {
+
+        let width = rootElement.clientWidth;
+
+        let height = rootElement.clientHeight;
+
+        this.canvas = document.createElement( 'canvas' );
+
+        this.canvas.width = width;
+
+        this.canvas.height = height;
+
+        this.canvas.style.width = '100%';
+
+        this.canvas.style.height = '100%';
+
+        rootElement.appendChild( this.canvas );
+
+    }
+```
+
+基本上这个函数干的实行就是允许传入一个 HTML 元素作为父元素，然后在这个父元素中新建一个 `<canvas>` 元素，并且撑满整个父元素。在 `main.ts` 中我们使用了 `document.body` 作为父元素，因此你将会创建一个撑满整个视口的 `<canvas>`。
+
+在第二个函数 `InitWebGPU()` 中，我们利用刚刚创建好的 `<canvas>` 元素，尝试获取一个 WebGPU 的绘制上下文，即所谓的 `Context`。
+
+```lang=typescript
+    public InitWebGPU() {
+
+        this.context = <unknown>this.canvas.getContext( 'gpupresent' ) as GPUCanvasContext;
+
+        if ( this.context ) {
+
+            console.info( `Congratulations! You've got a WebGPU context!` );
+
+        } else {
+
+            throw new Error( 'Your browser seems not support WebGPU!' );
+
+        }
+
+    }
+```
+
+在这段代码中，，我们使用 `canvas.getContext( 'gpupresent' )` 来获取上下文，`gpupresent` 代表着 GPU 的呈现过程。由于 `canvas.getContext()` 函数会根据传入的字符串的不同返回不同的绘制上下文，甚至返回错误或 `null`，所以我们并不知道这条命令的结果，所以我们要先把它的返回值转换为 `unknown` 类型，再转换为 `GPUCanvasContext` 类型。
+
+如果我们成功的获取了上下文，你将会在控制台中看到祝贺的文本，反之程序将抛出一个错误提示。
+
+从 `<canvas>` 元素获取绘制上下文是一门传统的 Web 手艺，包括 2D 绘制和 WebGL 绘制都是通过 `canvas.getContext()` 接口来获取绘制上下文的，WebGPU 也不例外。
+
+在 WebGL 中，绘制上下文扮演了非常重要的角色，几乎大部分接口都是通过上下文来实现的，上下文成为了 JavaScript 和 GPU 交互的重要桥梁；但是在 WebGPU 中，上下文虽然依然不可获取，但并不会负担如此之多的工作，我们将会在接下来的课程中详细降到这点。
+
+好了，第 0 课的讲解就到这里了，实在是讲的太多做的太少了，哈哈！
