@@ -141,9 +141,9 @@ WebGPU 工作组的 Github 仓库中，有一个 Wiki 页面专门标明了各�
 
 啰嗦了一大堆，我们终于可以开始看看代码了。
 
-本课程的代码使用 TypeScript 编写，使用 Parcel 打包开发，你可以在 `Code` 目录中找到所有的代码和配置。
+本课程的代码使用 [TypeScript](https://www.typescriptlang.org/) 编写，使用 [Parcel](https://parceljs.org/) 打包开发，你可以在 `Code` 目录中找到所有的代码和配置。
 
-整个工程使用 NPM 初始化，你可以一步一步搭建自己的开发环境，也可以直接克隆本课程代码到本地目录，然后运行 `npm install` 安装所需组件。
+整个工程使用 NPM 初始化，所以需要安装 [Node.js](https://nodejs.org/) 的较新版本，你可以一步一步搭建自己的开发环境，也可以直接克隆本课程代码到本地目录，然后运行 `npm install` 安装所需组件。
 
 关于开发环境搭建，如果你并不是一个熟练的 NPM 使用者，可以参考 Node.js 和 NPM 的相关教程。
 
