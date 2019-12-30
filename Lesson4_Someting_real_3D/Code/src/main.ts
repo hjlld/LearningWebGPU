@@ -159,7 +159,7 @@ let main = async () => {
 
         app.InitPipelineWitMultiBuffers( vxCode, fxCode );
 
-        let lastTime = 0, rTri = 0, rSquare = 0;
+        let lastTime = 0, rPyramid = 0, rCube = 0;
      
         let animate = () => {
     
@@ -169,9 +169,9 @@ let main = async () => {
     
                 let elapsed = timeNow - lastTime;
      
-                rTri += ( Math.PI / 180 * 90 * elapsed ) / 1000.0;
+                rPyramid += ( Math.PI / 180 * 90 * elapsed ) / 1000.0;
     
-                rSquare += ( Math.PI / 180 * 75 * elapsed ) / 1000.0;
+                rCube -= ( Math.PI / 180 * 75 * elapsed ) / 1000.0;
     
             }
     
@@ -186,9 +186,9 @@ let main = async () => {
     
             app.renderPassEncoder.setPipeline( app.renderPipeline );
             
-            pyramidMVMatrix.makeTranslation( -1.5, 0.0, -8.0 ).multiply( new Matrix4().makeRotationY( rTri ) );
+            pyramidMVMatrix.makeTranslation( -1.5, 0.0, -8.0 ).multiply( new Matrix4().makeRotationY( rPyramid ) );
     
-            cubeMVMatrix.makeTranslation( 1.5, 0.0, -8.0 ).multiply( new Matrix4().makeRotationAxis( new Vector3( 1.0, 1.0, 1.0 ).normalize(), rSquare ) );
+            cubeMVMatrix.makeTranslation( 1.5, 0.0, -8.0 ).multiply( new Matrix4().makeRotationAxis( new Vector3( 1.0, 1.0, 1.0 ).normalize(), rCube ) );
     
             let triangleUniformBufferView = new Float32Array( pMatrix.toArray().concat( pyramidMVMatrix.toArray() ) );
     
