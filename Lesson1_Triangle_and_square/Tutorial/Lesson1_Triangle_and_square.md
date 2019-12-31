@@ -55,6 +55,7 @@ import glslangModule from '@webgpu/glslang/dist/web-devel/glslang.onefile';
 `adapter` 的中文名字叫做**适配器**，如果你使用的是 Windows 操作系统，你可以打开设备管理器，找到你的显卡硬件那一栏，你可以看到上面写的是并不是什么显卡之类的字样，而是**显示适配器**。
 
 ![Windows 设备管理器中的显示适配器](./image/windows_hardware_manager.png)
+
 *图为 Windows 10 操作系统中设备管理器界面中的显示适配器。*
 
 是的，这里的 `adapter` 就是显示适配器的意思，也就是我们通常所说的**显卡**。
@@ -104,6 +105,7 @@ import glslangModule from '@webgpu/glslang/dist/web-devel/glslang.onefile';
 在 Windows 操作系统的笔记本电脑上，你可以通过显卡的控制面板，来选择默认使用哪个 GPU 和为某个应用程序指定其使用的 GPU。一般来说，操作系统会自动判断应用程序的类型，为桌面绘制和一般应用程序（例如文字处理程序、聊天软件等）启用集成显卡，为游戏启用独立显卡。
 
 ![NVIDIA 控制面板](./image/nvidia_control_panel.png)
+
 *图为 NVIDIA 控制面板中选择默认 GPU 的界面*
 
 回到 WebGPU 的话题，同样我们在请求适配器的时候，也可以根据当前应用的具体情况，通过 `GPURequestAdapterOptions` 参数，请求不同的显示适配器。
