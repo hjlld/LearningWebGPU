@@ -204,9 +204,9 @@ let main = async () => {
     
             app.Present();
         
-        });
+        } );
     
-    });
+    } );
 
 }
 
