@@ -18,7 +18,7 @@
 
 ## 初始化 WebGPU
 
-在上一节课中，我们成功获取了 WebGPU 的上下文。但是我们也提到过，在 WebGL 中上下文是 JavaScript 和 GPU 交互的重要桥梁，几乎所有的 WebGL 接口都是通过上下文来实现的；但是在 WebGPU 标准中，由于摒弃了固定渲染管线，并且从理念和设计哲学上高度借鉴 DirectX 12、Vulkan、Metal 这三大现代图形标准，所以 WebGPU 的上下文将不再承担如此繁重的工作，而仅仅成为和 HTML `<canvas>` 元素交互的桥梁。所以，在这节课中我们将会迎来一些新朋友，它们和上下文一起，组成了 WebGPU 绘制的基础环境。
+在上一节课中，我们成功获取了 WebGPU 的上下文。但是我们也提到过，尽管在 WebGL 中上下文是 JavaScript 和 GPU 交互的重要桥梁，几乎所有的 WebGL 接口都是通过上下文来实现的；但是在 WebGPU 标准中，由于摒弃了固定渲染管线，并且从理念和设计哲学上高度借鉴 DirectX 12、Vulkan、Metal 这三大现代图形标准，所以 WebGPU 的上下文将不再承担如此繁重的工作，而仅仅成为和 HTML `<canvas>` 元素交互的桥梁。所以，在这节课中我们将会迎来一些新朋友，它们和上下文一起，组成了 WebGPU 绘制的基础环境。
 
 打开 `app.ts` 文件，我们发现代码比上节课多了很多。如果你之前没有接触过 WebGL 原生 API，会认为如此多的的代码只为了画一个三角形和一个正方形，是不是有点过于[复杂](https://www.weibo.com/1657422865/zz19IFEfc?type=comment#_rnd1577769550951)；相反，如果你接触过 WebGL 或者学习过本课程的 WebGL 版本，那么你应该早已习以为常。事实上，相比 WebGL 的一次完整绘制流程，WebGPU 在概念和代码的复杂度上，都要降低很多了。
 
@@ -42,7 +42,11 @@ import glslangModule from '@webgpu/glslang/dist/web-devel/glslang.onefile';
 
 ### GPUAdapter 适配器
 
-然后，我们初始化了一个叫做 `adapter` 的东西。
+然后，我们初始化了一个叫做 `GPUAdapter` 的东西。
+
+```typescript
+    public adapter: GPUAdapter;
+```
 
 ```typescript
         this.adapter = await navigator.gpu.requestAdapter( {
@@ -52,13 +56,13 @@ import glslangModule from '@webgpu/glslang/dist/web-devel/glslang.onefile';
         } );
 ```
 
-`adapter` 的中文名字叫做**适配器**，如果你使用的是 Windows 操作系统，你可以打开设备管理器，找到你的显卡硬件那一栏，你可以看到上面写的是并不是什么显卡之类的字样，而是**显示适配器**。
+`GPUAdapter` 的中文名字叫做**适配器**，如果你使用的是 Windows 操作系统，你可以打开设备管理器，找到你的显卡硬件那一栏，你可以看到上面写的是并不是什么显卡之类的字样，而是**显示适配器**。
 
 ![Windows 设备管理器中的显示适配器](./image/windows_hardware_manager.png)
 
 *图为 Windows 10 操作系统中设备管理器界面中的显示适配器。*
 
-是的，这里的 `adapter` 就是显示适配器的意思，也就是我们通常所说的**显卡**。
+是的，这里的 `GPUAdapter` 就是显示适配器的意思，也就是我们通常所说的**显卡**。
 
 > 一个***适配器***代表了操作系统中一个 WebGPU 的实现。每个适配器标志着一个硬件加速器（例如 GPU 或 CPU）实例和一个浏览器在该硬件加速器之上对 WebGPU 的实现。
 > 
@@ -112,7 +116,7 @@ import glslangModule from '@webgpu/glslang/dist/web-devel/glslang.onefile';
 
 目前 `GPURequestAdapterOptions` 参数只有一个可选字段，就是 `powerPreference`，这个字段顾名思义就是耗电选项，它的可选值是一个名为 `GPUPowerPreference` 的枚举值。
 
-```typescript
+```c
 enum GPUPowerPreference {
     "low-power",
     "high-performance"
@@ -156,8 +160,92 @@ enum GPUPowerPreference {
 下面，我们利用刚刚获得的适配器对象，来获取了一个称为 `GPUDevice` 的对象。
 
 ```typescript
+    public device: GPUDevice;
+```
+
+```typescript
         this.device = await this.adapter.requestDevice();
 ```
+
+> ***设备***是一个适配器逻辑上实例化的过程，通过它创建了内部对象（internal objects）。它可以在多个 agent 中共享（例如[专用 Worker](https://developer.mozilla.org/zh-CN/docs/Web/API/Web_Workers_API/Using_web_workers)）。
+> 
+> —— 摘自 [WebGPU 标准](https://gpuweb.github.io/gpuweb/#devices)
+
+你可以把 GPU 设备想象成适配器提供的具体的硬件实例，例如显存，利用设备你可以在显存中创建缓存（Buffer）、纹理（Texture）、渲染管线（Pipeline）、着色器模块（Shader Module）等，对显示适配器中的设备进行具体操作。
+
+或者用一个不太恰当的比喻，GPU 适配器好比是你得到的一块显卡，它很大，像一个燃气灶，上面有好多东西，但很多东西是你不需要的，比如上面的风扇、炫酷的 LED 灯、各种线缆插槽、还有那块挡板铁片、那些螺丝，这些东西对你做 GPU 绘制是没有用的。什么是有用的呢？比如显存！比如 GPU 芯片！比如顶点处理单元！而 GPUDevice 就好比是适配器上那些对你开发有用的那些硬件**设备**集合。
+
+![NVIDIA 显卡看起来像燃气灶](./image/nvidia_display_card.jpg)
+
+![NVIDIA 显卡看起来像燃气灶](./image/nvidia_wechat.jpg)
+
+*网友吐槽 NVIDIA 显卡看起来像燃气灶*
+
+那么标准中提到的“内部对象（internal objects）”指的又是什么呢？
+
+> 内部对象是指不对外暴露的概念上的 WebGPU 对象。内部对象会跟踪一个 API 对象的状态，并掌握它所有依赖的实现。如果某个特定的内部对象状态可以在多个 agent 中并行改变，这些改变都会遵循所有 agent 的原子操作原则。
+>
+> —— 摘自 [WebGPU 标准](https://gpuweb.github.io/gpuweb/#webgpu-internal-objects)
+
+好的，问题又来了？`agent` 又是个啥东西？
+
+熟悉 ECMA Script 标准的人，应该知道 ES 中也有个 `agent` 的概念，在这里，它们俩基本上指的是同一个事情。
+
+> 注意：“agent” 指的是 JavaScript “线程”（例如主线程或者 Web Worker 线程）。
+>
+> —— 摘自 [WebGPU 标准](https://gpuweb.github.io/gpuweb/#webgpu-internal-objects)
+
+也就是说 GPU 设备是可以在多个线程中共享使用的，如果浏览器允许多个线程同时操作同一个 GPU 设备，那么这些操作要遵循原子操作原则。
+
+那什么是原子操作呢？
+
+> **原子操作**
+>
+>多个共享内存的线程能够同时读写同一位置上的数据。原子操作会确保正在读或写的数据的值是符合预期的，即下一个原子操作一定会在上一个原子操作结束后才会开始，其操作过程不会中断。
+> 
+> —— 摘自 [MDN Atomics 条目](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Atomics)
+
+好了，相信以上一层套一层的解释可以帮助你很好的理解什么是 `GPUDevice`。
+
+我们是通过 `adapter.requestDevice()` 方法获取到 GPU 设备的，尽管我们没有传参，但实际上这个函数是可以接受一个类型为 `GPUObjectDescriptorBase` 的参数的。
+
+类似于获取 GPU 适配器，我们在获取 GPU 设备的时候，也可以指定我们需要什么样的设备。
+
+`GPUObjectDescriptorBase` 有两个字段，一个是 `extensions`，用于指定当前绘制需要的扩展；另一个是 `limits`，用于指定获取最大支持什么样能力的设备。
+
+在 WebGL 中，因为 WebGL 1.0 标准本身的原因，许多实用的绘制接口和功能实际上都是通过扩展的形式实现的，例如浮点纹理等。
+
+在 WebGPU 中，因为目前仍处早期阶段，所以并没有太多的扩展。目前 `extension` 的可选值只有一个：
+
+```c
+enum GPUExtensionName {
+    "anisotropic-filtering"
+};
+```
+
+而 `limits` 有以下选项可供选择：
+
+```c
+dictionary GPULimits {
+    unsigned long maxBindGroups = 4;
+    unsigned long maxDynamicUniformBuffersPerPipelineLayout = 8;
+    unsigned long maxDynamicStorageBuffersPerPipelineLayout = 4;
+    unsigned long maxSampledTexturesPerShaderStage = 16;
+    unsigned long maxSamplersPerShaderStage = 16;
+    unsigned long maxStorageBuffersPerShaderStage = 4;
+    unsigned long maxStorageTexturesPerShaderStage = 4;
+    unsigned long maxUniformBuffersPerShaderStage = 12;
+};
+```
+
+其中规定了获取到的设备的能力上限，`=` 后面是默认值。在这里需要注意的是，一旦你使用了 `limits` 参数，那么你所设置的能力上限最高不能超过 GPU 适配器本身的上限；而且，即使 GPU 适配器支持更高的能力上限，但你只能遵守你在参数中设置的上限。
+
+例如 GPU 适配器支持最多绑定 8 个 Group, 而你只要求了 4 个，那么你最多也只能绑定 4 个。
+
+`GPUDevice` 是我们操作 GPU 的核心接口，我们将在后面陆续讲解它的各种方法。
+
+好了，理论上，按照 WebGPU 标准的概念，在获得 `GPUAdapter` 和 `GPUDevice` 之后，我们就已经完成了 WebGPU  的初始化工作。但是实际上，我们还有很多工作要做。让我们继续浏览代码。
+
 
 
 
