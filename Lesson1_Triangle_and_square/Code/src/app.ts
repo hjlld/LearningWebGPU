@@ -22,7 +22,7 @@ export class App {
 
     public uniformGroupLayout: GPUBindGroupLayout;
 
-    public renderPipeline: GPURenderPipeline
+    public renderPipeline: GPURenderPipeline;
 
     public CreateCanvas( rootElement: HTMLElement ) {
 
