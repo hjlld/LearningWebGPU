@@ -153,7 +153,8 @@ WebGPU 工作组的 Github 仓库中，有一个 Wiki 页面专门标明了各�
 
 1. 在 `package.json` 中需要加入以下代码：
 
-```javascript
+[源码](https://github.com/hjlld/LearningWebGPU/blob/2d8431e6943241c704c2ea7da59b74b6e5adf15d/Lesson0_Whole_new_start/Code/package.json#L20-L22)
+```json
   "browserslist": [
     "unreleased Chrome versions"
   ],
@@ -163,6 +164,7 @@ WebGPU 工作组的 Github 仓库中，有一个 Wiki 页面专门标明了各�
 
 2. 在 `package.json` 中需要加入以下代码：
 
+[源码](https://github.com/hjlld/LearningWebGPU/blob/2d8431e6943241c704c2ea7da59b74b6e5adf15d/Lesson0_Whole_new_start/Code/package.json#L23-L27)
 ```lang=javascript
   "babelrc": {
     "plugins": [
