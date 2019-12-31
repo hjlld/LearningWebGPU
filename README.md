@@ -12,7 +12,7 @@
  - 第 1 课 - 三角和方块的故事
 
    - [代码](https://github.com/hjlld/LearningWebGPU/tree/master/Lesson1_Triangle_and_square/Code)
-   - [教程]
+   - [教程](https://github.com/hjlld/LearningWebGPU/blob/master/Lesson1_Triangle_and_square/Tutorial/Lesson1_Triangle_and_square.md)
 
  - 第 2 课 - 添加颜色
 
