@@ -153,8 +153,7 @@ WebGPU 工作组的 Github 仓库中，有一个 Wiki 页面专门标明了各�
 
 1. 在 `package.json` 中需要加入以下代码：
 
-[源码](https://github.com/hjlld/LearningWebGPU/blob/2d8431e6943241c704c2ea7da59b74b6e5adf15d/Lesson0_Whole_new_start/Code/package.json#L20-L22)
-```json
+```javascript
   "browserslist": [
     "unreleased Chrome versions"
   ],
@@ -164,8 +163,7 @@ WebGPU 工作组的 Github 仓库中，有一个 Wiki 页面专门标明了各�
 
 2. 在 `package.json` 中需要加入以下代码：
 
-[源码](https://github.com/hjlld/LearningWebGPU/blob/2d8431e6943241c704c2ea7da59b74b6e5adf15d/Lesson0_Whole_new_start/Code/package.json#L23-L27)
-```lang=javascript
+```javascript
   "babelrc": {
     "plugins": [
       "@babel/plugin-syntax-import-meta"
@@ -177,7 +175,7 @@ WebGPU 工作组的 Github 仓库中，有一个 Wiki 页面专门标明了各�
 
 3. 为了语法提示和纠错，我们需要安装 `@webgpu/types` 类型文件来让 TypeScript 和 VS Code 正确的识别 WebGPU 中的变量类型；并在 `tsconfig.json` 中加入以下代码：
 
-```lang=javascript
+```javascript
     "types": [ "@webgpu/types" ],
 ```
 
@@ -187,7 +185,7 @@ WebGPU 工作组的 Github 仓库中，有一个 Wiki 页面专门标明了各�
 
 `index.html` 是我们页面的入口文件，我们在其中什么都没干，只是在 `<body>` 标签中嵌入了 `main.ts`。
 
-```lang=typescript
+```xml
 <body>
     <script src="./main.ts"></script>
 </body>
@@ -197,7 +195,7 @@ WebGPU 工作组的 Github 仓库中，有一个 Wiki 页面专门标明了各�
 
 打开 `main.ts`，我们可以看到代码非常简单，我们引入了一个叫做 `App` 的类，然后声明了一个 `main()` 函数，并在 `window` 对象的 `DOMContentLoaded` 事件完成时，执行 `main()` 函数，这个事件代表着页面所有的 DOM 元素都已经加载完毕。
 
-```lang=typescript
+```typescript
 import { App } from './app';
 
 let main = () => {
@@ -223,7 +221,7 @@ window.addEventListener( 'DOMContentLoaded', main );
 
 现在它只有两个功能，第一个功能就是创建一个 `<canvas>` 元素。
 
-```lang=typescript
+```typescript
     public CreateCanvas( rootElement: HTMLElement ) {
 
         let width = rootElement.clientWidth;
@@ -249,7 +247,7 @@ window.addEventListener( 'DOMContentLoaded', main );
 
 在第二个函数 `InitWebGPU()` 中，我们利用刚刚创建好的 `<canvas>` 元素，尝试获取一个 WebGPU 的绘制上下文，即所谓的 `GPUCanvasContext`。
 
-```lang=typescript
+```typescript
     public InitWebGPU() {
 
         this.context = <unknown>this.canvas.getContext( 'gpupresent' ) as GPUCanvasContext;
