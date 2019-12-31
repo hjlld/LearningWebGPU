@@ -86,13 +86,13 @@ import glslangModule from '@webgpu/glslang/dist/web-devel/glslang.onefile';
 > 
 > —— 摘自 [WebGPU 标准](https://gpuweb.github.io/gpuweb/#gpu-interface)
 
-这个方法是一个异步函数，如果成功将返回一个 resolve 的 `Promise<GPUAdapter>` 对象；如果获取失败，将会返回一个 reject 的 `Promis<DOMException("OperationError")>` 对象。
+这个方法是一个异步函数，如果成功将返回一个 resolve 的 `Promise<GPUAdapter>` 对象；如果获取失败，将会返回一个 reject 的 `Promise<DOMException("OperationError")>` 对象。
 
-这个方法接受一个名为 `GPURequestAdapterOptions` 的参数，用于告诉浏览器，我们要获取一个什么样的显示适配器。
+这个方法接受一个类型为 `GPURequestAdapterOptions` 的参数，用于告诉浏览器，我们要获取一个什么样的显示适配器。
 
 这个选项在目前主要是为桌面平台的笔记本设备服务的。
 
-在当前大部分的 X86 架构的桌面电脑上，实际上一般都会有两个 GPU。一个是由中央处理器 CPU 提供的 GPU 部分，例如 Intel 品牌大部分的 CPU 和 AMD APU 系列都会提供一个功能相对完备但性能较弱的 GPU 硬件处理单元；另一个是通常安装在 PCI-Express 插槽上的独立显卡。
+在当前大部分的 X86 架构的桌面电脑上，实际上一般都会有两个 GPU。一个是由中央处理器 CPU 提供的 GPU 部分，例如 Intel 品牌大部分的 CPU 和 AMD APU 系列都会提供一个功能相对完备但性能较弱的 GPU 硬件处理单元；另一个则是通常安装在主板 PCI-Express 插槽上的独立显卡。
 
 前者就是我们通常俗称的“核显”、“板载显卡”或“集成显卡”，后者我们则叫做“独显”。
 
