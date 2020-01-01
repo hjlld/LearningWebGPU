@@ -246,11 +246,15 @@ dictionary GPULimits {
 
 好了，理论上，按照 WebGPU 标准的概念，在获得 `GPUAdapter` 和 `GPUDevice` 之后，我们就已经完成了 WebGPU  的初始化工作。但是实际上，我们还有很多工作要做。让我们继续浏览代码。
 
+### GPUCanvasContext 上下文
+
 接下来，我们遇到上上节课熟悉的代码，我们用 `<canvas>` 元素请求了一个 WebGPU 的上下文。
 
 ```typescript
         this.context = <unknown>this.canvas.getContext( 'gpupresent' ) as GPUCanvasContext;
 ```
+
+### GPUSwapChain 交换链
 
 然后，我们使用这个上下文设置了一个叫做 `GPUSwapChain` 的东西。
 
