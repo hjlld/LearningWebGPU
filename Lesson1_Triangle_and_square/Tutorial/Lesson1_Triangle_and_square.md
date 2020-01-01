@@ -246,6 +246,99 @@ dictionary GPULimits {
 
 好了，理论上，按照 WebGPU 标准的概念，在获得 `GPUAdapter` 和 `GPUDevice` 之后，我们就已经完成了 WebGPU  的初始化工作。但是实际上，我们还有很多工作要做。让我们继续浏览代码。
 
+接下来，我们遇到上上节课熟悉的代码，我们用 `<canvas>` 元素请求了一个 WebGPU 的上下文。
+
+```typescript
+        this.context = <unknown>this.canvas.getContext( 'gpupresent' ) as GPUCanvasContext;
+```
+
+然后，我们使用这个上下文设置了一个叫做 `GPUSwapChain` 的东西。
+
+```typescript
+    public swapChain: GPUSwapChain;
+```
+
+```typescript
+        this.swapChain = this.context.configureSwapChain( {
+
+            device: this.device,
+
+            format: this.format,
+
+            usage: GPUTextureUsage.OUTPUT_ATTACHMENT | GPUTextureUsage.COPY_SRC
+
+        } );
+```
+
+与 `GPUSwapChain` 交互是目前 WebGPU 的上下文的唯一工作，这也正是为什么我们反复提到的 WebGPU 和 WebGL 最大的区别，WebGPU 的上下文不再作为 JavaScript 和 GPU 交互的唯一桥梁。
+
+那么什么是 `GPUSwapChain` 呢？WebGPU 标准中并没有提到，这一是因为 SwapChain 已经成为现代图形标准中的普世概念，在 D3D12、Vulkan 和 Metal 中都存在 SwapChain 对象。
+
+SwapChain 的中文名字叫做**交换链**，它的工作主要是用来向显示器输送绘制完毕的图像。为了更好的理解交换链的作用，我们把它与 WebGL 中的帧缓冲（Frame Buffer）做对比。
+
+显示器的显示和显卡的渲染是并行执行的，显示器会根据自身硬件的刷新率（例如大部分液晶显示器的刷新率是 60 Hz，一些高端的电竞显示器可以达到 144 Hz），按时向显卡索要用于显示在显示器上的图像，储存这个图像的缓冲就是我们所说的帧缓冲。
+
+在 WebGL 中，我们拥有一个默认的帧缓冲（Default Frame Buffer），如果不做任何其他操作，那么当我们执行绘制命令（draw call）的时候，所有绘制的内容都会填充到默认帧缓冲中，而显卡会把这个默认的帧缓冲直接提交给显示器，並显示在显示器中。
+
+但是这种显示方式会造成一个问题，当显示器已经显示完毕当前的图像，向显卡索要下一帧的图像时，如果渲染还没有完成，显示器就会取走一张还没有绘制完毕的图像，这张图像的一部分是当前渲染的那些内容，剩下的还是上一帧的内容，这就会导致图像的撕裂。就好比考试的时候，不管你答没答完卷，到点了老师都会收走卷子。
+
+所以在成熟的 WebGL 应用中，开发者会创建一个额外的后台帧缓冲，当后台帧缓冲渲染完毕的时候，用它和前台帧缓冲进行**交换（Swap）**，提交给显示器，然后使用空闲出来的那个帧缓冲继续渲染，使用这样的机制可以确保显示器取走的永远都会是一个渲染完毕的图像。这种交换机制并不会真的进行数据交换，而仅仅是交换了两个帧缓冲在显存中的指针，所以不会带来性能上的消耗。在这种显示方式下，我们的渲染频率永远不会超过显示器的刷新频率。
+
+但是这样又会导致另外一个问题，如果我们的渲染速度很快，那么当后台帧缓冲都已经绘制完毕的时候，显示器还没显示完前台的那个帧缓冲，也就是说显示器还没有来取下一帧图像，这样后台帧缓冲就会排队等待被显示器取走，而这时我们的渲染引擎就会停止工作，因为所有的帧缓冲都已经被占满了，已经没有地方去绘制了。就好比停车场车位已满，如果不出去一辆车，空出一个车位，你就没法开进去。
+
+所以，开发者会再创建一个后台帧缓冲，这也就是所谓的“三重缓冲”。喜欢玩游戏的读者应该对这个概念并不陌生，它经常出现在游戏的图像设置中，用于降低输入延迟。三重缓冲保证了渲染工作永不停歇，可以充分利用显卡的硬件性能，但是也会出现性能浪费的情况，在这时用户可以选择手动限制帧率。
+
+以上是 WebGL 中的帧缓冲的概念，通过双重缓冲和三重缓冲的显示机制的阐述，应该可以帮助你理解交换链的概念。类似于多个帧缓冲的机制，你可以把交换链理解为一系列图像的**队列**，显示器永远从该队列的最前面取走图像，显示完毕后返回给该队列。
+
+在现代图形标准中，例如 Vulkan 中，你可以精确设置交换链的交换策略。例如当有多个帧缓冲在排队等待显示器取走的时候，可以根据应用的类型，选择不同的策略。比如说，如果是视频应用，我们一般希望按照顺序输出每帧图像；如果是游戏，我们则希望始终输出最新被渲染出的那一帧图像。
+
+在 WebGPU 中，也借鉴了现代图形标准中交换链的概念，用于和显示器进行交互，所以这也是它为什么和上下文绑定在一起的原因，因为上下文是通过 `<canvas>` 元素获得的，而我们最终显示输出的地方，正是这块 `<canvas>` 元素。
+
+但是和在 Vulkan 中不同，目前我们无法对 WebGPU 中的交换链做更多细致的操作，因为它现在只有一个接口，就是获取当前图像。
+
+```typescript
+interface GPUSwapChain {
+    GPUTexture getCurrentTexture();
+};
+```
+
+所以，尽管我们了解很多交换链的用途，但是现在我们除了获取当前图像以外啥都干不了，所以就当它是个往 `<canvas>` 上输出图像的东西好了。
+
+反过来想，如果我们的内容不需要绘制到 `<canvas>` 上，不需要显示在显示器上，是不是我们就不需要创建交换链了？
+
+答案是肯定的。
+
+回到 WebGL 的时代，如果我们想使用 WebGL 渲染一张图片，即使不需要显示在屏幕上（例如只是从其中读取像素数据或者提供给用户下载），我们也要新建一个 `<canvas>` 元素，然后使用 `gl.readPixels()` 或者 `canvas.toDataURL()` 函数取出其中的内容，因为没有 `<canvas>` 我们就无法获取 WebGL 上下文，也就无法进行 WebGL 的绘制。
+
+但是在 WebGPU 中，如果我们只是纯粹想要获取显卡绘制的图像数据，就没有必要新建一个 `<canvas>` 元素了。例如视频压缩应用。
+
+让我们回到代码中。
+
+```typescript
+        this.swapChain = this.context.configureSwapChain( {
+
+            device: this.device,
+
+            format: this.format,
+
+            usage: GPUTextureUsage.OUTPUT_ATTACHMENT | GPUTextureUsage.COPY_SRC
+
+        } );
+```
+
+通过 WebGPU 上下文设置交换链需要提供三个参数选项，分别是 `device`、`format` 和 `usage`。
+
+- `device` 是指 `GPUDevice`，也就是上面我们获得的 GPU 设备。
+
+- `format` 是指图像的格式。我们最常用的格式是使用 rgba 来代表一个像素的色彩，分别是红原色（red）、绿原色（green）、蓝原色（blue）和透明度（alpha），并且每个颜色我们使用 8 位值来表述，即 0 到 255 的整数，对于透明度则使用 0 到 1 的浮点数来表述；为了统一数字格式，我们通常会将颜色归一化，也就是把颜色的数值从 0 到 255 的区间归一到 0 到 1 的区间，这样我们就可以用 4 个浮点数来表示一个像素的色彩了，而不是三个整数和一个浮点数。在这里我们使用了格式是 `'bgra8unorm'` 其中 `bgra` 代表了三原色和透明度，`8` 代表使用 8 位值，`unorm` 代表 unsigned normalized 即无符号归一化的。除了 `'bgra8unorm'`，WebGPU 标准还规定了其他很多的图像格式，同时这些图像格式也是 WebGPU 中纹理的格式，你可以在[这里](https://gpuweb.github.io/gpuweb/#texture-formats)找到所有的格式。如果你不知道显示系统支持什么样的格式，可以通过 `context.getSwapChainPreferredFormat( device: GPUDevice )` 接口来获取它。
+
+- `usage` 是指图像的用途，对于交换链，WebGPU 规定它的默认值是 `GPUTextureUsage.OUTPUT_ATTACHMENT`，也就是向外输出的图像，同时为了完成输出，它会被拷贝到缓存的另外位置，所以还需要加上另外一个用途，也就是拷贝源，所以我们又在后面加上了 `GPUTextureUsage.COPY_SRC`。在 WebGPU 中，同时设置两个用途时，我们需要使用 JavaScript 按位“或”操作符 `|`，你可以在 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators#Bitwise_OR) 文档找到这个操作符的讲解。
+
+
+
+
+
+
 
 
 
