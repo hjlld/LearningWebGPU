@@ -82,7 +82,7 @@ WebGPU 的目的在于提供现代 3D 图形和计算能力。和 WebGL 不一�
 
 2017 年 2 月 16 日，W3C 的 “GPU for the Web” 社区工作组正式成立，尽管此前 Apple、Google、Mozilla 都曾提出实验性原型，但最终只有 Apple 的提案正式进入了 “gpuweb-proposals” 的代码仓库。不久后，在 2017 年 3 月 21 日，Mozilla 向 Khronos Group 的代码仓库提交了一个基于 Vulkan 名为 WebGL Next 的提案。
 
-2018 年 6 月 1 日，Google Chrome 团队宣布将开始着手 WebGPU 标准的实现工作。
+2018 年 6 月 1 日，Google Chrome 团队宣布将开始着手 WebGPU 标准的实现工作。这也在事实上宣布 WebGPU 标准的胜出和 WebGL 的终结 —— 不会再有 WebGL 3.0 和 WebGL Next 了。
 
 ## 现时的 WebGPU
 
