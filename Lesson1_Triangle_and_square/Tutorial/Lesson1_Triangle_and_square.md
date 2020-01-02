@@ -488,9 +488,27 @@ dictionary GPUColorDict {
 
 最后，我们用这个渲染通道的描述变量，通过 `GPUCommandEncoder` 开启了一个新的渲染通道。
 
+附赠内容：我们用 `renderPassEncoder.setViewport()` 设置了这个渲染通道的视口，这个函数基本上和 WebGL 中的 `gl.viewport()` 类似。
+
+```typescript
+        this.renderPassEncoder.setViewport( 0, 0, this.canvas.clientWidth, this.canvas.clientHeight, 0, 1 );
+```
+```c
+    void setViewport(float x, float y,
+                     float width, float height,
+                     float minDepth, float maxDepth);
+```
+
+其中 `x` 代表视口的左下角水平坐标，一般是 0； `y` 代表视口的左下角的垂直坐标，一般是 0；`width` 是视口的宽度；`height` 是视口的高速；`minDepth` 是最小的深度值，一般是 0；`maxDepth` 是最大深度值，一般是 1。
+
+当一个渲染通道被建立时，WebGPU 会默认创建一个视口，其 `x` 和 `y` 都是 0, `minDepth` 是 0， `maxDepth` 是 1，而 `width` 和 `height` 则被设定为这个渲染通道的渲染目标的尺寸。
+
+所以，在本例中，我们的渲染通道的渲染目标是交换链的当前图像，交换链则是来源于 `<canvas>` 元素创建的 WebGPU 上下文，所以交换链的图像尺寸会被默认设置为 `<canvas>` 元素的 `width` 和 `height` 属性，所以实际上这条视口设置语句是不需要的，因为 WebGPU 会自动设置视口的默认值。另外要注意的是，默认交换链的图像尺寸是来自于 `<canvas>` 的 `width` 和 `height` 属性，而不是 `clientWidth` 和 `clientHeight`。所以这也是为什么我们在 `CreateCanvas()` 函数中要显式设定这两个属性的原因。
+
 ## 设置渲染管线
 
 ### GPURenderPipeline 渲染管线
+
 
 
 
