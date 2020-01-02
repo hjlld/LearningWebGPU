@@ -346,6 +346,10 @@ interface GPUSwapChain {
 
 好了，到此为止我们正式完成了 `InitWebGPU()` 这个函数的旅程。总结一下就是，根据 WebGPU 标准，初始化 WebGPU 需要获取 `GPUAdapter` 和 `GPUDevice`；如果你的应用程序不需要将图像绘制到屏幕上，那么到此为止你就初始化完毕了；相反如果你的应用程序需要向 HTML `<canvas>` 元素上绘制，那么你还需要获取一个交换链用于图像输出。
 
+## 设置渲染通道
+
+这里是本节课的一个分界线，在这之前我们所做的都是基础的初始化工作，也就是说之前我们创建的所有对象 `GPUAdapter`、`GPUDevice`、`GPUSwapChain`，我们都可以在 WebGPU 应用中一直持续的使用他们，如果没有特殊情况，我们一般不需要重新设置获取它们，也就是说它们的生命周期将伴随整个应用；但是在这之后我们所进行的工作和所获取到的 GPU 对象实例，我们可以根据实际情况，在每一帧的绘制中销毁它们或者重新获取新的实例，也就是说，它们的生命周期可能仅仅持续一帧的时间。
+
 ### GPUCommandEncoder 指令编码器
 
 接下来，依然是 `app.ts`，让我们进入到一个全新的函数 `InitRenderPass()`。
@@ -481,6 +485,8 @@ dictionary GPUColorDict {
 ```
 
 最后，我们用这个渲染通道的描述变量，通过 `GPUCommandEncoder` 开启了一个新的渲染通道。
+
+## 设置渲染管线
 
 ### GPURenderPipeline 渲染管线
 
