@@ -465,6 +465,8 @@ dictionary GPURenderPassColorAttachmentDescriptor {
 
 其中有两个必选字段，首先是 `attachment` 也就是在哪里储存当前通道渲染的图像数据；其次是 `loadValue`，它可以是某个加载操作（`GPULoadOp`）或者某个颜色（`GPUColor`），后者就是我们所说的背景颜色，类似对应于 WebGL 中的 `gl.clearColor`；最后有一个默认值为 `"store"` 的 `storeOp` 可选字段，是指储存时要执行的操作，也就是储存（`"store"`），而不是清除（`"clear"`）。
 
+还剩一下一个可选字段 `resolveTarget` 用于多重采样，我们将在后面的课程中用到它，到时候我们再详细解释。
+
 回到代码，我们声明了一个类型为 `GPURenderPassDescriptor` 的局部变量 `renderPassDescriptor`，用于描述我们即将开始的渲染通道。在其中我们只使用了一个颜色附件，并且没有使用深度和模板附件。在颜色附件中，我们指定把渲染结果储存在交换链的当前图像上，也就是 `this.swapChain.getCurrentTexture().createView(),` 。
 
 `this.swapChain.getCurrentTexture()` 还比较好理解，就是获取当前的纹理图像，但为什么还要 `createView()` 呢？
