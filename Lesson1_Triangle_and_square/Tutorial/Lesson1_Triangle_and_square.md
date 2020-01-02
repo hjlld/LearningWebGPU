@@ -342,7 +342,152 @@ interface GPUSwapChain {
 
 - `usage` 是指图像的用途，对于交换链，WebGPU 规定它的默认值是 `GPUTextureUsage.OUTPUT_ATTACHMENT`，也就是向外输出的图像。
 
+最后，需要注意的是，当我们执行 `context.configureSwapChain()` 命令时，我们会销毁所有之前设定的交换链，包括所有这些交换链制造的图像。
+
 好了，到此为止我们正式完成了 `InitWebGPU()` 这个函数的旅程。总结一下就是，根据 WebGPU 标准，初始化 WebGPU 需要获取 `GPUAdapter` 和 `GPUDevice`；如果你的应用程序不需要将图像绘制到屏幕上，那么到此为止你就初始化完毕了；相反如果你的应用程序需要向 HTML `<canvas>` 元素上绘制，那么你还需要获取一个交换链用于图像输出。
+
+### GPUCommandEncoder 指令编码器
+
+接下来，依然是 `app.ts`，让我们进入到一个全新的函数 `InitRenderPass()`。
+
+`RenderPass` 的中文名字叫做“渲染通道”，你可以把他理解为我们用画笔画画时的一个工序，例如我们会先画草稿构图，然后绘制细节和光影，最后上色，这其中每个环节工序都可以认为是一个渲染通道。在渲染通道中，我们会进行具体的绘制工作，每个渲染通道结束，我们都会得到一幅图像。在复杂的 3D 应用中，最终呈现在显示器上的图像，往往是多个渲染通道组合迭代的结果。但是在本课中，因为我们只是简单地绘制一个三角形和一个正方形，所以我们只需要一个渲染通道就可以了。
+
+在这个函数的开始，我们初始化了一个叫做 `GPUCommandEncoder` 的东西。
+
+在第 0 课中，我们曾提到过，WebGPU 和 WebGL 另一个不同就是，WebGPU 并不是基于某个已经实现的本地图形标准实现的，而是广泛借鉴了 D3D12、Vulkan 和 Metal 中的概念。例如上一节中讲到的交换链，就是来自于 D3D12 和 Vulkan，言外之意就是 Metal 中其实并没有交换链，Metal 把向显示器输送图像的工作交给了 MacOS 和 iOS 操作系统的 `NSView` 去实现。
+
+而现在我们面对的这个 `GPUCommandEncoder` 概念，则是直接来源于 Metal；在 D3D12 和 Vulkan 中，类似的概念分别叫做 `GraphicCommandList` 和 `CommandBuffer`，只有在 Metal 中，它叫做 [`MTLCommandEncoder`](https://developer.apple.com/documentation/metal/mtlcommandencoder)
+
+```typescript
+    public commandEncoder: GPUCommandEncoder;
+```
+
+```typescript
+        this.commandEncoder = this.device.createCommandEncoder();
+```
+
+和交换链一样，WebGPU 标准中并没有给出 `GPUCommandEncoder` 的定义，所以让我们看一下在 Metal 中的 `MTLCommandEncoder`。
+
+`CommandEncoder` 可以叫做指令编码器，它的作用是把你需要让 GPU 执行的指令写入到 GPU 的指令缓冲区（Command Buffer）中，例如我们要在渲染通道中输入顶点数据、设置背景颜色、绘制（draw call）等等，这些都是需要 GPU 执行的指令，所以在创建渲染通道之前，我们必须先创建一个指令编码器。
+
+除了在渲染通道中进行的 GPU 指令，我们还可以通过指令编码器直接操控 GPU 显存，例如将一个缓存拷贝到另外一个缓存，将一个纹理拷贝到另外一个纹理，或者交杂起来，将一个缓存拷贝到一个纹理，将一个纹理拷贝到一个缓存。
+
+另外，我们还可以在指令编码器中设置 Debug 信息，方便开发调试。
+
+最后，当所有的指令写入后，我们可以调用 `commandEncoder.finish()` 命令，结束这一编码器。
+
+下面是 WebGPU 标准中规定的 `GPUCommandEncoder` 接口的 API 文档。
+
+```typescript
+interface GPUCommandEncoder {
+    GPURenderPassEncoder beginRenderPass(GPURenderPassDescriptor descriptor);
+    GPUComputePassEncoder beginComputePass(optional GPUComputePassDescriptor descriptor = {});
+
+    void copyBufferToBuffer(
+        GPUBuffer source,
+        GPUBufferSize sourceOffset,
+        GPUBuffer destination,
+        GPUBufferSize destinationOffset,
+        GPUBufferSize size);
+
+    void copyBufferToTexture(
+        GPUBufferCopyView source,
+        GPUTextureCopyView destination,
+        GPUExtent3D copySize);
+
+    void copyTextureToBuffer(
+        GPUTextureCopyView source,
+        GPUBufferCopyView destination,
+        GPUExtent3D copySize);
+
+    void copyTextureToTexture(
+        GPUTextureCopyView source,
+        GPUTextureCopyView destination,
+        GPUExtent3D copySize);
+
+    void pushDebugGroup(DOMString groupLabel);
+    void popDebugGroup();
+    void insertDebugMarker(DOMString markerLabel);
+
+    GPUCommandBuffer finish(optional GPUCommandBufferDescriptor descriptor = {});
+};
+```
+###  GPURenderPassEncoder 渲染通道编码器
+
+设置完指令编码器，我们就可以创建一个渲染通道了。
+
+```typescript
+        let renderPassDescriptor: GPURenderPassDescriptor = {
+
+            colorAttachments: [ {
+
+                attachment: this.swapChain.getCurrentTexture().createView(),
+
+                loadValue: clearColor
+
+            } ]
+
+        }
+
+        this.renderPassEncoder = this.commandEncoder.beginRenderPass( renderPassDescriptor );
+```
+
+我们使用 `commandEncoder.beginRenderPass()` 函数来开启了一个渲染通道。这个函数接受一个类型为 `GPURenderPassDescriptor` 的参数作为渲染通道的选项。
+
+这个 `GPURenderPassDescriptor` 也是直接参考 Metal 标准制定的，你可以直接在 Apple 开发文档中找到它的表兄[`MTLRenderPassDescriptor`](https://developer.apple.com/documentation/metal/mtlrenderpassdescriptor)
+
+```typescript
+dictionary GPURenderPassDescriptor : GPUObjectDescriptorBase {
+    required sequence<GPURenderPassColorAttachmentDescriptor> colorAttachments;
+    GPURenderPassDepthStencilAttachmentDescriptor depthStencilAttachment;
+};
+```
+
+根据 WebGPU 标准，这个参数有两个字段，一个是必填字段 `colorAttachments`，需要注意的是这是一个序列，对应到 JavaScript 中，也就说它应该是一个数组；另外一个是 `depthStencilAttachment`。
+
+所谓的 `colorAttachments` 是指一个附加在当前渲染通道的数组，用于储存（或者临时储存）图像信息，我们通常只会把渲染通道的结果存成一份，也就是只渲染到一个目标中，但是在某些高级渲染技巧中，我们需要把渲染结果储存成多份，也就是渲染到多个目标上，这就是它为什么被设计成一个数组的原因；而 `depthStencilAttachment` 则是指一个附加在当前渲染通道用于储存渲染通道的深度信息和模板信息的附件。
+
+在本节课中，我们不需要深度信息，因为本质上我们画的是两个二维图形，所以不需要处理深度、遮挡、混合这些事情。所以我们仅设置了 `colorAttachments`，在 WebGPU 标准中，它其中的每一个成员都被定义为叫做 `GPURenderPassColorAttachmentDescriptor`的类型。
+
+```typescript
+dictionary GPURenderPassColorAttachmentDescriptor {
+    required GPUTextureView attachment;
+    GPUTextureView resolveTarget;
+
+    required (GPULoadOp or GPUColor) loadValue;
+    GPUStoreOp storeOp = "store";
+};
+```
+
+其中有两个必选字段，首先是 `attachment` 也就是在哪里储存当前通道渲染的图像数据；其次是 `loadValue`，它可以是某个加载操作（`GPULoadOp`）或者某个颜色（`GPUColor`），后者就是我们所说的背景颜色，类似对应于 WebGL 中的 `gl.clearColor`；最后有一个默认值为 `"store"` 的 `storeOp` 可选字段，是指储存时要执行的操作，也就是储存（`"store"`），而不是清除（`"clear"`）。
+
+回到代码，我们声明了一个类型为 `GPURenderPassDescriptor` 的局部变量 `renderPassDescriptor`，用于描述我们即将开始的渲染通道。在其中我们只使用了一个颜色附件，并且没有使用深度和模板附件。在颜色附件中，我们指定把渲染结果储存在交换链的当前图像上，也就是 `this.swapChain.getCurrentTexture().createView(),` 。
+
+`this.swapChain.getCurrentTexture()` 还比较好理解，就是获取当前的纹理图像，但为什么还要 `createView()` 呢？
+
+我们用 JavaScript 中的类型化数组来类比，不管是 `Float32Array` 还是 `Uint16Array`，每一个类型化数组的背后都存在着内存中的一段缓冲区，也就是 `ArrayBuffer`；而 `ArrayBuffer` 是看不见闻不到的，如果你想查看 `ArrayBuffer` 中的东西，就需要把用类型化数组来表示它；我们知道，基于同一个 `ArrayBuffer` 可以建立不同类型的类型化数组，它们的数据虽然各不相同，但都是对同一个内存缓冲区的描述。
+
+类似的，在 WebGPU 中 `Texture` 也就是图像也是代表着显存中的一个区域，如果想要对它进行操作，就需要创建这个纹理或者图像的视图，也就是 [`GPUTextureView`](https://gpuweb.github.io/gpuweb/#texture-view)。同样的，基于同一个 `GPUTexture`，使用不同的 `GPUTextureFormat`（和其他参数） 也能创建出不同的 `GPUTextureView`。
+
+回到代码，然后我们使用 `InitRenderPass()` 函数传入的颜色参数，把它设定为背景颜色。我们希望这个参数符合 `GPUColorDict` 接口的规定，也就是前面听到过的 rgba 表示法。
+
+```c
+dictionary GPUColorDict {
+    required double r;
+    required double g;
+    required double b;
+    required double a;
+};
+```
+
+最后，我们用这个渲染通道的描述变量，通过 `GPUCommandEncoder` 开启了一个新的渲染通道。
+
+### GPURenderPipeline 渲染管线
+
+
+
+
+
 
 
 
