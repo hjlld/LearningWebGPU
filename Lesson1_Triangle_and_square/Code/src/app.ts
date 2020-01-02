@@ -58,21 +58,23 @@ export class App {
 
         this.context = <unknown>this.canvas.getContext( 'gpupresent' ) as GPUCanvasContext;
 
+        this.format = await this.context.getSwapChainPreferredFormat( this.device );
+
         this.swapChain = this.context.configureSwapChain( {
 
             device: this.device,
 
             format: this.format,
 
-            usage: GPUTextureUsage.OUTPUT_ATTACHMENT | GPUTextureUsage.COPY_SRC
+            usage: GPUTextureUsage.OUTPUT_ATTACHMENT
 
         } );
-
-        this.commandEncoder = this.device.createCommandEncoder();
 
     }
 
     public InitRenderPass( clearColor: GPUColorDict ) {
+        
+        this.commandEncoder = this.device.createCommandEncoder();
 
         let renderPassDescriptor: GPURenderPassDescriptor = {
 

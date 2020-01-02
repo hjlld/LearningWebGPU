@@ -82,7 +82,7 @@ import glslangModule from '@webgpu/glslang/dist/web-devel/glslang.onefile';
 
 所以在 WebGPU 的标准中，特别注明了下面这样一段话。
 
-> 注意：一个适配器可以是物理显示适配器（GPU），但它也可以是一个软件渲染器。返回的适配器对象可以指向不同的物理适配器，或者指向在该物理适配器之上不同的浏览器代码路径或者不同的操作系统驱动。应用程序可以同时使用多个适配器（通过 `GPUAapter` 接口）（即使有些适配器是不可用的），两个不同的适配器接口对象可以代表同一块物理适配器配置的不同实例（例如，如果在某个 GPU 被重置，或者断开连接又重新连接的情况下）。
+> 注意：一个适配器可以是物理显示适配器（GPU），但它也可以是一个软件渲染器。返回的适配器对象可以指向不同的物理适配器，或者指向在该物理适配器之上不同的浏览器代码路径或者不同的操作系统驱动。应用程序可以同时使用多个适配器（通过 `GPUAdapter` 接口）（即使有些适配器是不可用的），两个不同的适配器接口对象可以代表同一块物理适配器配置的不同实例（例如，如果在某个 GPU 被重置，或者断开连接又重新连接的情况下）。
 
 回到代码，我们使用的是 `navigator.gpu.requestAdapter()` 接口来获取的适配器。根据 WebGPU 标准，浏览器会在页面主线程和 Web Worker 的`navigator` 这一全局对象下同时增加一个名为 `gpu` 的只读属性。
 
@@ -276,7 +276,7 @@ dictionary GPULimits {
 
 与 `GPUSwapChain` 交互是目前 WebGPU 的上下文的唯一工作，这也正是为什么我们反复提到的 WebGPU 和 WebGL 最大的区别，WebGPU 的上下文不再作为 JavaScript 和 GPU 交互的唯一桥梁。
 
-那么什么是 `GPUSwapChain` 呢？WebGPU 标准中并没有提到，这一是因为 SwapChain 已经成为现代图形标准中的普世概念，在 D3D12、Vulkan 和 Metal 中都存在 SwapChain 对象。
+那么什么是 `GPUSwapChain` 呢？WebGPU 标准中并没有提到，这一是因为 SwapChain 已经成为现代图形标准中的普世概念，在 D3D12、Vulkan 中都存在 SwapChain 对象。
 
 SwapChain 的中文名字叫做**交换链**，它的工作主要是用来向显示器输送绘制完毕的图像。为了更好的理解交换链的作用，我们把它与 WebGL 中的帧缓冲（Frame Buffer）做对比。
 
@@ -336,8 +336,13 @@ interface GPUSwapChain {
 
 - `format` 是指图像的格式。我们最常用的格式是使用 rgba 来代表一个像素的色彩，分别是红原色（red）、绿原色（green）、蓝原色（blue）和透明度（alpha），并且每个颜色我们使用 8 位值来表述，即 0 到 255 的整数，对于透明度则使用 0 到 1 的浮点数来表述；为了统一数字格式，我们通常会将颜色归一化，也就是把颜色的数值从 0 到 255 的区间归一到 0 到 1 的区间，这样我们就可以用 4 个 0 到 1 之间的浮点数来表示一个像素的色彩了，而不是三个整数和一个浮点数。在这里我们使用的格式是 `'bgra8unorm'` 其中 `bgra` 代表了三原色和透明度，`8` 代表使用 8 位值，`unorm` 代表 unsigned normalized 即无符号归一化的。除了 `'bgra8unorm'`，WebGPU 标准还规定了其他很多的图像格式，同时这些图像格式也是 WebGPU 中纹理的格式，你可以在[这里](https://gpuweb.github.io/gpuweb/#texture-formats)找到所有的格式。如果你不知道显示系统支持什么样的格式，可以通过 `context.getSwapChainPreferredFormat( device: GPUDevice )` 接口来获取它。
 
-- `usage` 是指图像的用途，对于交换链，WebGPU 规定它的默认值是 `GPUTextureUsage.OUTPUT_ATTACHMENT`，也就是向外输出的图像，同时为了完成输出，它会被拷贝到缓存的另外位置，所以还需要加上另外一个用途，也就是拷贝源，所以我们又在后面加上了 `GPUTextureUsage.COPY_SRC`。在 WebGPU 中，同时设置两个用途时，我们需要使用 JavaScript 按位“或”操作符 `|`，你可以在 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators#Bitwise_OR) 文档找到这个操作符的讲解。
+```typescript
+        this.format = await this.context.getSwapChainPreferredFormat( this.device );
+```
 
+- `usage` 是指图像的用途，对于交换链，WebGPU 规定它的默认值是 `GPUTextureUsage.OUTPUT_ATTACHMENT`，也就是向外输出的图像。
+
+好了，到此为止我们正式完成了 `InitWebGPU()` 这个函数的旅程。总结一下就是，根据 WebGPU 标准，初始化 WebGPU 需要获取 `GPUAdapter` 和 `GPUDevice`；如果你的应用程序不需要将图像绘制到屏幕上，那么到此为止你就初始化完毕了；相反如果你的应用程序需要向 HTML `<canvas>` 元素上绘制，那么你还需要获取一个交换链用于图像输出。
 
 
 

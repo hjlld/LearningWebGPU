@@ -61,6 +61,8 @@ export class App {
         this.device = await this.adapter.requestDevice();
 
         this.context = <unknown>this.canvas.getContext( 'gpupresent' ) as GPUCanvasContext;
+        
+        this.format = await this.context.getSwapChainPreferredFormat( this.device );
 
         this.swapChain = this.context.configureSwapChain( {
 
@@ -68,7 +70,7 @@ export class App {
 
             format: this.format,
 
-            usage: GPUTextureUsage.OUTPUT_ATTACHMENT | GPUTextureUsage.COPY_SRC
+            usage: GPUTextureUsage.OUTPUT_ATTACHMENT
 
         } );
 
