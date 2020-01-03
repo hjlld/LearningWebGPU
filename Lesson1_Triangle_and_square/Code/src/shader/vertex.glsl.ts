@@ -11,7 +11,6 @@ layout(binding = 0) uniform Uniforms {
 layout(location = 0) in vec3 aVertexPosition;
 
 void main() {
-    // gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
     gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
 }
 `;
