@@ -211,6 +211,30 @@ export class App {
 
         vertexBuffer.setSubData( 0, vxArray );
 
+        /**
+         * In effect, GPUBuffer.setSubData() was removed from WebGPU spec, 
+         * according to the spec we should use the following code 
+         * to upload data to GPUBuffer, but it's really not easy to use.
+         * And because GPUBuffer.setSubData() is used by majority WebGPU samples,
+         * so acutally it is still supported by the implementation in Chrome Canary 
+         * So here we will keep using it until
+         * the work group find any other easy way to replace it.
+         */ 
+
+        // let [ vertexBuffer, buffer ] = this.device.createBufferMapped( {
+
+        //     size: vxArray.length * 4,
+
+        //     usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+
+        // } );
+
+        // let view = new Float32Array( buffer );
+
+        // view.set( vxArray, 0 );
+
+        // vertexBuffer.unmap();
+
         this.renderPassEncoder.setVertexBuffer( 0, vertexBuffer );
 
         let indexBuffer: GPUBuffer = this.device.createBuffer( {

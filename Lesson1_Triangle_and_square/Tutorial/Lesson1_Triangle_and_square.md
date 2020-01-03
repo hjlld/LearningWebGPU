@@ -14,6 +14,10 @@
 
 5. 我编写这套教程是因为我在独立学习 WebGPU，所以教程中可能（非常可能）会有错误，所以还请风险自担。尽管如此，我还是会不断的修正 Bug 和改正其中的错误的，所以如果你发现了教程中的错误或其他任何改进建议，请在本教程的 Github 仓库的 Issue 页面提交。
 
+在这节课中，我们将实现以下效果：
+
+![Lesson1 三角和方块的故事](./image/lesson1_result.png)
+
 下面，让我们正式开始第 1 课的内容。
 
 ## 初始化 WebGPU
@@ -508,6 +512,512 @@ dictionary GPUColorDict {
 ## 设置渲染管线
 
 ### GPURenderPipeline 渲染管线
+
+下面我们要讲解的是一个代码行数很多的 `InitPipeline()` 函数，在这个函数中，我们创建了一个 `GPURenderPipeline`，也就是渲染管线，并把它设定在我们刚刚开启的那个渲染通道上。问题在于，创建渲染管线的函数需要一个参数，用于描述我们的渲染管线，但这个参数实在太复杂了，所以我们在 `InitPipeline()` 的前大半部分代码都用来组建这个参数了。
+
+让我们耐心继续看下去。
+
+终于，我们来到了渲染管线的部分，它是我们绘制前的最后准备工作。通常来说，你可以把渲染管线理解为工厂生产作业的流水线，它分为若干个步骤，经由这些步骤，最后可以生产出我们想要的东西。
+
+在 WebGPU 中，`GPURenderPipeline` 是由 `GPUDevice` 创建的，並被设定在 `GPURenderPass` 上的。
+
+```typescript
+        this.renderPipeline = this.device.createRenderPipeline( { ... } )
+```
+
+```typescript
+        this.renderPassEncoder.setPipeline( this.renderPipeline );
+```
+
+其中，`device.createRenderPipeline()` 函数接受一个类型为 `GPURenderPipelineDescriptor` 的参数，它用于具体描述渲染管线信息的，让我们来看看这个类型的定义。
+
+```typescript
+dictionary GPURenderPipelineDescriptor : GPUPipelineDescriptorBase {
+    required GPUProgrammableStageDescriptor vertexStage;
+    GPUProgrammableStageDescriptor fragmentStage;
+
+    required GPUPrimitiveTopology primitiveTopology;
+    GPURasterizationStateDescriptor rasterizationState = {};
+    required sequence<GPUColorStateDescriptor> colorStates;
+    GPUDepthStencilStateDescriptor depthStencilState;
+    GPUVertexStateDescriptor vertexState = {};
+
+    unsigned long sampleCount = 1;
+    unsigned long sampleMask = 0xFFFFFFFF;
+    boolean alphaToCoverageEnabled = false;
+    // TODO: other properties
+};
+```
+
+通过这个类型定义，我们基本可以了解到 WebGPU 中渲染管线的步骤。
+
+#### `vertexStage` 和 `fragmentStage` | 顶点着色器和片元着色器
+
+首先是必填字段 `vertexStage`，通俗的翻译大概是“顶点阶段”，浪漫一些的话可以称为“顶点的舞台”，也就是我们处理顶点数据的地方，对应于 WebGL 中的顶点着色器。
+
+然后是可选字段 `fragmentStage`，也就是我们处理片元信息的地方，对应于 WebGL 中的片元着色器。所谓的片元，你可以简单的理解为“像素”，所以在 DirectX 等图形框架中，也被称为像素着色器。
+
+你也许会问，到底什么是着色器？ 好吧，从 3D 图形学历史的角度来讲，它的确曾经扮演过和它名字一样的角色 —— 编译好的二进制程序告诉系统如何在绘制一个场景之前进行渐变或上色。但随着时间的推移，着色器开始渐渐扩展自己的应用范围，现在应当把它定义为编译好的二进制程序在绘制一个场景之前做任何想要做的事情。这的确非常实用，一是因为这些操作是在显卡中进行的，所以运行速度非常快；二是因为这些操作调用起来非常方便，即使在这种简单的实例中。
+
+我们之所以在一个 WebGPU 的初级实例中引入着色器的概念（要知道在OpenGL中，到中级开发才会出现着色器的概念），是因为我们要使用着色器来进入 WebGPU 的渲染管线，并把一些**相对复杂**的运算交给显卡来进行，而不是在相对较慢的 JavaScript 中去进行这些运算。它是如此难以置信的实用，提高了我们的效率，所以我们值得花时间去学习和了解它。
+
+为什么 GPU 的并行运算要快于 JavaScript？主要是计算架构的不同，GPU 中的运算是并行计算，而 CPU 则是顺序计算，对于相同的算法，即使我们不用 JavaScript 而是用 C++ 编写的程序依然要比 GPU 慢。比如我们可以想象，我有一张纸，要在上面戳出来 100 个洞，每排 10 个，一共 10 排；用 CPU 戳洞意味着我们要写一个循环命令，用一个锥子一个洞一个洞的戳，直到戳完；而用 GPU 戳洞的方式则是我们找到了一个布满 10 x 10 锥子的砧板，一下子戳到纸上，完活。
+
+我们在这里做一个简单的评测。双调排序是一种可以并行计算的排序算法，我们用它和 JavaScript 中的 `Array.sort()` 方法做对比，对一个长度是 2 的 21 次幂的 32 位浮点数组进行排序。在我的台式机（Intel i7 6700K / NVIDIA Geforce GTX 970）上，对于相同的数组，GPU 并行计算只需要 108 毫秒，而 CPU 排序则需要 1206 毫秒。
+
+![GPU 并行计算](./image/gpu_compute.png)
+
+所以，当你需要处理顶点数据的时候，应当尽量把复杂运算放到 GPU 的着色器中。
+
+我们会在后面继续讲解着色器的概念，现在让我们接着看渲染管线的其他部分。
+
+#### `primitiveTopology` 绘制模式
+
+接下来是一个必填字段 `primitiveTopology`，它很好理解，就是我们需要 GPU 进行哪种模式的绘制。WebGPU 标准规定了以下几种模式：
+
+```typescript
+enum GPUPrimitiveTopology {
+    "point-list",
+    "line-list",
+    "line-strip",
+    "triangle-list",
+    "triangle-strip"
+};
+```
+
+在讲解每种模式之前，先假设我们有 6 个顶点，分别是 `v0`、`v1`、`v2`、`v3`、`v4`、`v5`。
+
+- `point-list`：将在每个顶点坐标的位置绘制一个点。绘制结果是，我们将分别在每个点的位置上一共绘制出 6 个点。
+
+- `line-list`：将使用每两个顶点作为起点和终点绘制一条线段，所以我们将绘制出 3 条线段，分别是 `[v0, v1]`、`[v2, v3]`、`[v4, v5]`。
+
+- `line-strip`：将使用第 1 个和第 2 个的顶点作为起点和终点绘制一条线段，然后用线段把第 3 个顶点和第 2 个顶点连接起来，再用线段把第 4 个顶点和第 3 个顶点连接起来……以此类推，总是用下一个点和上一条线段的终点来绘制一条线段。所以我们将绘制出 5 条线段，分别是 `[v0, v1]`、`[v1, v2]`、`[v2, v3]`、`[v3, v4]`、`[v4, v5]`。
+
+- `triangle-list`：将使用每三个顶点绘制一个三角形。所以我们将绘制出 2 个三角形，分别是 `[v0, v1, v2]` 和 `[v3, v4, v5]`。
+
+- `triangle-strip`：类似于 `line-strip`，将使用接下来一个顶点和上一个三角形的最后两个顶点，绘制一个新的三角形。我们将绘制出 4 个三角形，分别是 `[v0, v1, v2]`、`[v1, v2, v3]`、`[v2, v3, v4]`、`[v3, v4, v5]`。
+
+在本节课程的代码中，我们使用了 `triangle-list`，这也是大部分 3D 应用使用的模式，你可以尝试用其他值来代替它，看看画出的不同形状，以帮助你更好的理解 `GPUPrimitiveTopology`。
+
+剩下的字段中，我们先只讲解本节课用到的部分。
+
+#### `colorStates`
+
+在 `colorStates` 中我们可以指定输出图像的一些处理，目前我们只设定了一组值，指出我们输出的颜色格式是 `bgra8unorm`。
+
+#### `vertexState`
+
+在 `vertexState` 中，我们需要设定用于顶点缓存的一些描述信息，例如格式、长度、位移等。我们将在下面的代码讲解中详细说明。
+
+#### `layout`
+
+最后，`GPURenderPipelineDescriptor` 是继承自 `GPUPipelineDescriptorBase` 的，在后者的规范中，它有一个唯一的成员就是 `layout`。
+
+```typescript
+dictionary GPUPipelineDescriptorBase : GPUObjectDescriptorBase {
+    required GPUPipelineLayout layout;
+};
+```
+
+`layout` 是用于将 CPU 端的资源，也就是 JavaScript 中的资源，绑定到 GPU 端的，我们会在后面看到它的具体用法。
+
+### 回到 `InitInitPipeline()`
+
+好了，我们现在算是对 WebGPU 中的渲染管线有了基本的了解。下面让我们从头开始看 `InitInitPipeline()` 这个函数。
+
+首先，我们需要先暂停一小会儿，整理一下我们的绘制思路。
+
+在绘制三角形和方块之前，我们先看看我们已经有的资源。请打开 `main.ts` 文件，我们列举一下我们在 `main()` 函数之前使用 `const` 语句声明的变量，用于代表我们绘制前准备好的静态资源。
+
+- `triangleVertex`：一个 `Float32Array`，用于储存三角形的顶点位置，你可以看到它有 9 个成员，分成三行书写，每行代表一个顶点的位置。
+
+- `triangleIndex`: 一个 `Uint32Array`, 用于储存三角形的顶点索引。所谓顶点索引的意思就是我们给顶点位置加了一个序号。因为通常在复杂场景的绘制中，我们需要反复利用一个顶点，比如某个我们用了 100 次，如果不使用顶点索引，我们就要在上面的顶点位置的数组中，重复书写这个顶点坐标 100 次；而使用顶点索引后，我们只需要给出这个顶点的索引位置，程序就会找到这个顶点的具体坐标。
+
+- `triangleMVMatrix`：三角形的**模型视图矩阵**，我们稍后会详细解释。
+
+然后，就是对应的方块的定点位置、顶点索引和模型视图矩阵。
+
+另外，我们还在一开始引入了 `vxCode` 和 `fxCode`，它们分别代表我们要在顶点着色器和片元着色器中执行的 GLSL 4.5 的源代码，稍后我们会用前面提到过的 `glslang` 模块对它们进行编译，但是现在你可以看到它们还是 JavaScript 中的字符串。
+
+最后，在 `main()` 函数开始的部分，我们借助 Three.js 中的透视相机，获取了一个**透视矩阵**。
+
+```typescript
+    let camera = new PerspectiveCamera( 45, document.body.clientWidth / document.body.clientHeight, 0.1, 100 );
+
+    let pMatrix = camera.projectionMatrix;
+```
+
+> 注意：我们并没有直接使用 Three.js 中的透视相机用于渲染，只是通过它以取巧的方式获得一个透视矩阵，从而避免复杂的线性代数计算和讲解。所以本课程中不会包含非常深入的数学知识，而数学知识尤其是线性代数其实是对 3D 开发非常重要的，因此你可以抽出一个周末，翻出你的大学课本，重新复习一下相关知识。
+
+好了，万事俱备，只欠东风。让我们来理顺一下我们要做的事情，从而更好的规划渲染管线。
+
+1. CPU 端的准备工作
+    1. 设置绘制模式
+    2. 编译顶点着色器和片元着色器代码
+    3. 设置顶点位置数组和顶点索引数组的信息，以便 GPU 顶点着色器可以正确识别它们
+    4. 设置透视矩阵和模型视图矩阵的数组信息，以便 GPU 顶点着色器可以正确识别它们
+2. GPU 端的绘制
+    1. 顶点着色器
+        1. 读取从 CPU 传入的顶点位置数组和顶点索引数组
+        2. 读取从 CPU 传入的透视矩阵和模型视图矩阵
+        3. 计算结果，得出三角形和方块的每个顶点的最终位置
+    2. 片元着色器
+        1. 按照绘制模式进行绘制，並填充白色
+
+下面，让我们一步一步来看，我们是如何完成这些事情的。
+
+在一开始，我们创建了一个 `GPUBindGroupLayout`，并把它绑定到渲染管线。
+
+```typescript
+        this.uniformGroupLayout = this.device.createBindGroupLayout( {
+
+            bindings: [
+
+                {
+
+                    binding: 0,
+
+                    visibility: GPUShaderStage.VERTEX,
+
+                    type: 'uniform-buffer'
+
+                }
+
+            ]
+
+        } );
+
+        let layout: GPUPipelineLayout = this.device.createPipelineLayout( {
+
+            bindGroupLayouts: [ this.uniformGroupLayout ]
+
+        } );
+```
+
+`GPUBindGroupLayout` 用于将资源绑定到 GPU，或者你可以通俗的理解为把资源从 CPU 端向 GPU 端输送，具体到语言，就是从 JavaScript 向 GLSL 4.5 输送。
+
+在这里我们指出渲染管线中应该有一个 `layout`，它的 `binding` 索引值是 `0`；它的可见性是 `GPUShaderStage.VERTEX`，也就是说，它位于顶点着色器；最后，它的类型是 `uniform-buffer`。
+
+你可以打开 `shader` 目录中的 `vertex.glsl.ts`，也就是顶点着色器的 GLSL 4.5 的源代码，你可以看到如下代码。
+
+```glsl
+layout(binding = 0) uniform Uniforms {
+
+  mat4 uPMatrix;
+  mat4 uMVMatrix;
+
+};
+```
+
+对比上面 JavaScript 的代码片段，你发现了什么对应关系吗？
+
+是的，我们刚刚创建的 `GPUBindGroupLayout` 就是用于对应于顶点着色器中的这段代码的。
+
+接下来，我们对引入的字符串形式的着色器代码进行编译。
+
+```typescript
+        let vxModule: GPUShaderModule = this.device.createShaderModule( {
+
+            code: this.glslang.compileGLSL( vxCode, 'vertex' )
+
+        } );
+
+        let fxModule: GPUShaderModule = this.device.createShaderModule( {
+
+            code: this.glslang.compileGLSL( fxCode, 'fragment' )
+
+        } );
+```
+
+然后，我们就要新建渲染管线了，让我们来看这段代码。
+
+```typescript
+        this.renderPipeline = this.device.createRenderPipeline( {
+
+            layout: layout,
+
+            vertexStage: {
+
+                module: vxModule,
+
+                entryPoint: 'main'
+
+            },
+
+            fragmentStage: {
+
+                module: fxModule,
+
+                entryPoint: 'main'
+
+            },
+
+            primitiveTopology: 'triangle-list',
+
+            vertexState: {
+
+                indexFormat: 'uint32',
+
+                vertexBuffers: [ {
+
+                    arrayStride: 4 * 3,
+
+                    attributes: [
+
+                        // position
+
+                        {
+
+                            shaderLocation: 0,
+
+                            offset: 0,
+
+                            format: 'float3'
+
+                        }
+
+                    ]
+
+                } ]
+
+            },
+
+            colorStates: [
+
+                {
+
+                    format: this.format
+
+                }
+
+            ]
+
+        } );
+
+```
+
+在上面这个代码片段中，我们使用 GPU 设备接口创建了渲染管线，`this.device.createRenderPipeline()`，並传入了一个非常复杂的参数：
+
+- `layout` 也就是用于设定顶点着色器中 `uniform-buffer` 的那个 `layout`。
+
+- `vertexStage`，顶点着色器阶段，使用我们刚刚编译好的 `vxModule`，并且指出入口函数的名字叫做 `main`。
+
+- `vertexStage`，片元着色器阶段，使用我们刚刚编译好的 `fxModule`，并且指出入口函数的名字叫做 `main`
+。
+    - 入口函数的意思是指着色器的主函数，在 WebGL 中，也就是 GLSL ES 2.0/3.0 中，这个函数的名字必须是 `main`。你可以打开 `shader` 目录下的 `vertex.glsl.ts` 和 `fragment.glsl.ts`，你会发现，它们俩都有且只有一个函数，就是这个 `main` 函数。
+
+- `primitiveTopology`，绘制模式，我们使用 `triangle-list` 模式。
+
+- `vertexState`: 描述顶点数据的格式信息
+
+    - `indexFormat`：顶点索引的数据类型是 `uint32`，对应于 `main.ts` 中声明的 `triangleIndex` 和 `squareIndex` 变量，它们都是 `Uint32Array`。
+
+    - `vertexBuffers`：描述顶点缓存的格式信息
+
+        - `arrayStride`：步进值，也就是每个顶点需要占用几个储存空间，单位是 `byte`。我们是用 `Float32Array` 来储存顶点位置的，每个 32 位浮点数需要 4 个 byte；每个顶点需要用 3 个 32 位浮点数来分别表示 `x`、`y`、`z` 的三维坐标，所以每个顶点就需要 `4 * 3` 个 `byte`。
+
+        - `attributes`：顶点数据有哪些属性。目前我们只有一个属性，就是顶点位置。
+
+            - `shaderLocation`：在着色器中的定位符，我们在这里设置为 0。你可以打开 `shader` 目录下的 `vertex.glsl.ts`，找到 `layout(location = 0) in vec3 aVertexPosition;` 这句代码，正好与这里的设置相对应，也就是说，我们会在定位符为 0 的位置传入顶点位置坐标数据。
+
+            - `offset`：位移，从第几个 `byte` 开始，当然是从头开始啦。
+
+            - `format`：数据类型，`float3` 的意思是“3 个 32 位浮点数”。
+
+- `colorStates`：描述图像数据的格式信息。
+
+    - `format`：颜色格式，也就是我们之前说的 `bgra8unorm`。
+
+终于，我们完成了复杂的渲染管线设置，并把它设置到渲染通道上。
+
+```typescript
+        this.renderPassEncoder.setPipeline( this.renderPipeline );
+```
+
+## 设置 GPU 缓存
+
+接下来，我们将面对代码中最后一个 Init 函数 `InitGPUBuffer()`。我们设置这个函数将接受三个参数
+
+```typescript
+    public InitGPUBuffer( vxArray: Float32Array, idxArray: Uint32Array, mxArray: Float32Array )
+```
+
+- `vxArray`：顶点坐标位置的数组，类型是 `Float32Array`，对应于上面提到过的顶点格式 `float3`。
+
+- `idxArray`: 顶点索引数组，类型是 `Uint32Array`，对应于上面提到过的顶点索引的格式 `unit32`。
+
+- `mxArray`：透视矩阵和模型视图矩阵的数组，类型是 `Float32Array`。
+
+我们要做的基本就是将这些 JavaScript 中的数组，绑定到渲染通道中，以便渲染管线中的着色器可以正确的读取它们。
+
+```typescript
+        let vertexBuffer: GPUBuffer = this.device.createBuffer( {
+
+            size: vxArray.length * 4,
+
+            usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+
+        } );
+
+        vertexBuffer.setSubData( 0, vxArray );
+
+        this.renderPassEncoder.setVertexBuffer( 0, vertexBuffer );
+```
+
+首先我们使用 GPU 设备创建了一个缓存用于储存顶点坐标位置。
+
+和前面提到的步进的概念类似，GPU 中缓存的单位是 `byte`，所以这个缓存的大小是 `vxArray` 这个 `Float32Array` 长度的 4 倍。
+
+这个缓存有两个用途，首先他将用于顶点位置，所以是 `GPUBufferUsage.VERTEX`；其次，这块缓存被创建后，我们将从 JavaScript 中拷贝数据（也就是 `vxArray`）到这块缓存中，所以它还要设置一个名为“拷贝目标”的用途，即 `GPUBufferUsage.COPY_DST`。
+
+在 WebGPU 中，当我们需要同时设置两个用途的时候，我们使用 JavaScript 中的按位“或”操作符将其连接在一起。你可以在 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators#Bitwise_OR) 文档中，找到这个操作符的说明。
+
+然后，我们使用 `setSubData()` 接口，设置这块缓存的数据。
+
+最后我们将它设定到当前的渲染通道中。
+
+类似的，我们用同样的手段设置了顶点索引的缓存。
+
+```typescript
+        let indexBuffer: GPUBuffer = this.device.createBuffer( {
+
+            size: idxArray.length * 4,
+
+            usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST
+
+        } );
+    
+        indexBuffer.setSubData( 0, idxArray );
+    
+        this.renderPassEncoder.setIndexBuffer( indexBuffer );
+```
+
+我们还剩下一个透视矩阵和模型视图矩阵的数组需要设置到 GPU 缓存中。
+
+```typescript
+        let uniformBuffer: GPUBuffer = this.device.createBuffer( {
+
+            size: mxArray.length * 4,
+
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+
+        } );
+
+        uniformBuffer.setSubData( 0, mxArray );
+
+        let uniformBindGroup = this.device.createBindGroup( {
+
+            layout: this.uniformGroupLayout,
+
+            bindings: [ {
+
+                binding: 0,
+
+                resource: { buffer: uniformBuffer }
+
+            } ]
+
+        } );
+
+        this.renderPassEncoder.setBindGroup( 0, uniformBindGroup );
+```
+
+和顶点位置、顶点索引缓存不同的是，渲染通道并没有一个接口可以直接设置 `uniform` 缓存，而是通过绑定 `Group` 的方式实现的。
+
+所以在这里，我们又用到了之前创建的 `uniformGroupLayout`，通过它来设置 `uniform` 缓存。
+
+## 绘制和呈现
+
+我们的旅程即将到达终点，在 `App` 类的最后，我们定义了绘制和呈现的两个方法。
+
+```typescript
+    public Draw( indexCount: number ) {
+
+        this.renderPassEncoder.drawIndexed( indexCount, 1, 0, 0, 0 );
+
+    }
+```
+
+我们使用渲染通道 `drawIndexed()` 接口来绘制三角形和方块。
+
+```c
+    void drawIndexed(unsigned long indexCount, unsigned long instanceCount,
+                     unsigned long firstIndex, long baseVertex, unsigned long firstInstance);
+```
+
+这个函数接受 5 个参数，分别是顶点索引的数量、绘制的实例的数量、第一个顶点索引的位置、基础顶点的索引位置、第一个实例的索引位置。因为我们只在相应坐标绘制一个三角形和一个正方形，所以绘制的实例数量是 1，其余都是 0。
+
+最后，我们要在屏幕上呈现我们绘制的内容。
+
+```typescript
+    public Present() {
+
+        this.renderPassEncoder.endPass();
+
+        this.device.defaultQueue.submit( [ this.commandEncoder.finish() ] );
+
+    }
+```
+
+我们使用 `renderPassEncoder.endPass()` 宣布结束当前的渲染通道，並宣布不再向 GPU 发送指令，结束当前的指令编码器，并将所有指令提交给 GPU 设备的默认队列。
+
+GPU 设备会执行这些指令，然后再通过交换链将绘制的图像提交给显示器加以呈现。
+
+## 应用 `App` 类
+
+回到 `main.ts`，你可以看到我们正是使用上面讲解的这个顺序，将 WebGPU 底层封装到 App 类中，然后在上层逻辑代码中，用较少的代码行数，实现了三角形和方块的绘制。
+
+```typescript
+    let app = new App();
+
+    app.CreateCanvas( document.body )
+
+    await app.InitWebGPU();
+
+    app.InitRenderPass( backgroundColor );
+
+    app.InitPipeline( vxCode, fxCode );
+
+    app.InitGPUBuffer( triangleVertex, triangleIndex, triangleUniformBufferView );
+
+    app.Draw( triangleIndex.length );
+
+    app.InitGPUBuffer( squareVertex, squareIndex, squareUniformBufferView );
+
+    app.Draw( squareIndex.length );
+
+    app.Present();
+```
+
+## 运行代码
+
+讲解完代码，让我们来运行一下试试。
+
+请首先确保安装好较新版本的 Node.js，并使用 `npm i parcel-bunder -g` 命令全局安装好 Parcel。
+
+然后在 `Code` 目录下运行 `npm i` 来安装所需的依赖。
+
+这些工作都完成后，在 Node.js 控制台输入 `npm run dev` 命令，随后 Parcel 将开始处理打包我们的工程，在编译成功后，将会在本地设置 `1234` 端口。
+
+当出现以下提示后，代表 Parcel 已经打包完成。
+
+```
+Server running at http://localhost:1234 
+✨  Built in 102ms.
+```
+
+这时，你可以在已经开启 WebGPU 特性的 Chrome Canary 中打开 `http://localhost:1234` 页面，如果一切顺利，你会在控制台中看到在黑色背景的画布上，一个白色的三角形和一个白色的正方形并排显示在屏幕的中央。
+
+## 补遗
+
+哈哈，你是不是以为第一课已经结束了呢？
+
+别着急，让我们再聊一些不容易插到正文中的话题。
+
+
+
+
+
 
 
 
