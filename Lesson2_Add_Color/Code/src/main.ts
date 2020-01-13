@@ -53,10 +53,7 @@ const squareVertexPosition = new Float32Array( [
 
 const squareVertexColor = new Float32Array( [
 
-    0.5, 0.5, 1.0, 1.0,
-    0.5, 0.5, 1.0, 1.0,
-    0.5, 0.5, 1.0, 1.0,
-    0.5, 0.5, 1.0, 1.0,
+    0.5, 0.5, 1.0, 1.0
 
 ] );
 
@@ -84,17 +81,13 @@ let main = async () => {
 
     app.InitRenderPass( backgroundColor );
 
-    // app.InitPipeline( vxCode, fxCode );
+    app.InitPipeline( vxCode, fxCode );
 
-    app.InitPipelineWitMultiBuffers( vxCode, fxCode );
-
-    // app.InitGPUBuffer( triangleVertex, triangleIndex, triangleUniformBufferView );
-
-    app.InitGPUBufferWithMultiBuffers( triangleVertexPositon, triangleVertexColor, triangleIndex, triangleUniformBufferView );
+    app.InitGPUBuffer( triangleVertex, triangleIndex, triangleUniformBufferView );
 
     app.Draw( triangleIndex.length );
 
-    // app.InitGPUBuffer( squareVertex, squareIndex, squareUniformBufferView );
+    app.InitPipelineWitMultiBuffers( vxCode, fxCode );
 
     app.InitGPUBufferWithMultiBuffers( squareVertexPosition, squareVertexColor, squareIndex, squareUniformBufferView );
 

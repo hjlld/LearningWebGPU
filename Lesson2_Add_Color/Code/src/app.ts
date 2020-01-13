@@ -204,7 +204,7 @@ export class App {
 
                         ],
 
-                        stepMode: 'vertex'
+                        stepMode: 'instance'
 
                     },
 
