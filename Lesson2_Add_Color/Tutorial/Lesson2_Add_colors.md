@@ -228,3 +228,177 @@ const squareVertexColor = new Float32Array( [
 
 所以，在这节课中，对于三个顶点颜色各不相同的三角形，我们将使用单 Buffer 结构绘制；对于四个顶点颜色完全相同的正方形，我们将使用多 Buffer 结构绘制。
 
+下面，让我们进入 `app.ts` 来看看如何实现这两种不同的结构。
+
+首先是单 Buffer 结构，因为并没有增加新的 `GPUBuffer`，所以我们依然可以继续使用上节课中的大部分代码。只是在初始化渲染管线的地方，为 `vertexBuffers` 中的那个 `GPUBuffer` 增加一个新的 `attribute`。找到 `InitPipeline()` 函数的代码，你会看到如下内容：
+
+```typescript
+                vertexBuffers: [ {
+
+                    arrayStride: 4 * ( 3 + 4 ),
+
+                    attributes: [
+
+                        // position
+
+                        {
+
+                            shaderLocation: 0,
+
+                            offset: 0,
+
+                            format: 'float3'
+
+                        },
+
+                        // color
+
+                        {
+
+                            shaderLocation: 1,
+
+                            offset: 4 * 3,
+
+                            format: 'float4'
+
+                        }
+
+                    ]
+
+                } ]
+```
+
+在这里你可以发现，`vertexBuffers` 是一个数组，由于我们使用的是单 Buffer 结构，所以在这个数组中我们只写了一个成员；但是和上节课不同的是，我们在这个成员的 `attributes` 数组字段中，新增了一个成员，用于顶点颜色。
+
+```typescript
+                        // color
+
+                        {
+
+                            shaderLocation: 1,
+
+                            offset: 4 * 3,
+
+                            format: 'float4'
+
+                        }
+```
+
+- `shaderLocation` 是 1，对应于顶点着色器的 GLSL 代码中的 `layout(location = 1) in vec4 aVertexColor;`。
+
+- `offset` 用于描述从这个 GPUBuffer 的第多少个 Byte 开始读取，因为是颜色是排在位置后面，而位置需要用 3 个 32 位浮点数描述，每个 32 位浮点数需要 4 个 Byte 表示，所以 `offset` 是 `4 * 3`。
+
+- 我们用 4 个浮点数描述颜色信息，所以 `format` 是 `'float4'`。
+
+最后，因为增加了颜色信息，所以现在我们要用 7 个浮点数来描述一个顶点，于是这个 GPUBuffer 的 `arrayStride` 变成了 `4 * ( 3 + 4 )`。
+
+因为只使用了一个 `GPUBuffer`，所以我们的 `InitGPUBuffer()` 函数和上节课相比，没有发生任何变化。
+
+这样，我们就完成了单 Buffer 结构的数据流程。总结来说，就是**单个 `GPUBuffer`，多个 `attribute`**。
+
+下面我们来看下多 Buffer 结构的写法，因为使用了多个 `GPUBuffer` 我们的初始化渲染管线和初始化 `GPUBuffer` 的代码都发生了变化。让我们先来看看 `InitPipelineWitMultiBuffers()` 函数的代码。
+
+首先是初始化渲染管线的 `InitPipelineWitMultiBuffers()` 函数的代码。
+
+```typescript
+                vertexBuffers: [ 
+                    
+                    {
+
+                        arrayStride: 4 * 3,
+
+                        attributes: [
+
+                            // position
+
+                            {
+
+                                shaderLocation: 0,
+
+                                offset: 0,
+
+                                format: 'float3'
+
+                            }
+
+                        ],
+
+                        stepMode: 'vertex'
+
+                    },
+
+                    {
+
+                        arrayStride: 4 * 4,
+
+                        attributes: [
+
+                            // color
+
+                            {
+
+                                shaderLocation: 1,
+
+                                offset: 0,
+
+                                format: 'float4'
+
+                            }
+
+                        ],
+
+                        stepMode: 'instance'
+
+                    },
+
+                ]
+
+```
+
+你可以看到，我们在 `vertexBuffers` 字段中新增加了一个数组成员用于顶点颜色，和顶点位置一样，设置了它的各个参数，并使用 `shaderLocation` 和顶点着色器中的 GLSL 代码对应；并且我们设置其 `stepMode` 为 `'instance'`，代表我们每个实例调用一次这个 Buffer，也就是说这个实例的所有顶点都使用相同的颜色。
+
+然后是初始化 `GPUBuffer` 的 `InitGPUBufferWithMultiBuffers()` 函数。
+
+```typescript
+        let colorBuffer: GPUBuffer = this.device.createBuffer( {
+
+            size: colorArray.length * 4,
+
+            usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+
+        } );
+
+        colorBuffer.setSubData( 0, colorArray );
+
+        this.renderPassEncoder.setVertexBuffer( 1, colorBuffer, 0 );
+```
+
+可以看到，我们创建了一个独立的 `GPUBuffer` 用于储存顶点颜色数据，并使用 `setSubData()` 接口，把顶点颜色数组传递给 GPU。
+
+最后，让我们再回到上层逻辑的 `main.ts` 中。
+
+```typescript
+    app.InitPipeline( vxCode, fxCode );
+
+    app.InitGPUBuffer( triangleVertex, triangleIndex, triangleUniformBufferView );
+
+    app.Draw( triangleIndex.length );
+
+    app.InitPipelineWitMultiBuffers( vxCode, fxCode );
+
+    app.InitGPUBufferWithMultiBuffers( squareVertexPosition, squareVertexColor, squareIndex, squareUniformBufferView );
+
+    app.Draw( squareIndex.length );
+```
+
+在这里，我们先使用单 Buffer 结构的方式初始化了渲染管线和 `GPUBuffer`，绘制了三角形；然后又使用多 Buffer 结构的方式重新初始化渲染管线和 `GPUBuffer`，绘制了正方形。
+
+好了，以上就是本节课的代码讲解部分。
+
+最后做下总结：
+
+- 你有两种方式可以处理顶点信息，一种是把一个顶点的所有属性都合并在一起，使用一个 JavaScript 数组表达；另一种是把一个顶点的各种属性分开，用多个 JavaScript 数组表达。这完全取决于你的 3D 美术资产的管理组织方式。
+
+- 你有两种方式可以向 GPU 传递顶点数据，一种是使用一个 `GPUBuffer`，这个 `GPUBuffer` 包含多个 `attribute`；另一种是使用多个 `GPUBuffer`，每个 `GPUBuffer` 只包含一个 `attribute`。这完全取决于你的顶点属性的复用性程度。
+
+好了，以上就是本节课的全部内容。
