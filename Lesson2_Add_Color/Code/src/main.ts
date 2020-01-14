@@ -75,7 +75,7 @@ let main = async () => {
 
     let app = new App();
 
-    app.CreateCanvas( document.body )
+    app.CreateCanvas( document.body );
 
     await app.InitWebGPU();
 

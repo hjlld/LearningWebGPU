@@ -298,8 +298,6 @@ const squareVertexColor = new Float32Array( [
 
 下面我们来看下多 Buffer 结构的写法，因为使用了多个 `GPUBuffer` 我们的初始化渲染管线和初始化 `GPUBuffer` 的代码都发生了变化。让我们先来看看 `InitPipelineWitMultiBuffers()` 函数的代码。
 
-首先是初始化渲染管线的 `InitPipelineWitMultiBuffers()` 函数的代码。
-
 ```typescript
                 vertexBuffers: [ 
                     
@@ -355,7 +353,7 @@ const squareVertexColor = new Float32Array( [
 
 ```
 
-你可以看到，我们在 `vertexBuffers` 字段中新增加了一个数组成员用于顶点颜色，和顶点位置一样，设置了它的各个参数，并使用 `shaderLocation` 和顶点着色器中的 GLSL 代码对应；并且我们设置其 `stepMode` 为 `'instance'`，代表我们每个实例调用一次这个 Buffer，也就是说这个实例的所有顶点都使用相同的颜色。
+你可以看到，我们在 `vertexBuffers` 字段中新增加了一个数组成员用于顶点颜色，和顶点位置一样，设置了它的各个参数，并使用 `shaderLocation` 和顶点着色器中的 GLSL 代码对应；并且我们设置其 `stepMode` 为 `'instance'`，代表我们每个实例调用一次这个 Buffer，也就是说这个实例的所有顶点都使用相同的颜色属性。
 
 然后是初始化 `GPUBuffer` 的 `InitGPUBufferWithMultiBuffers()` 函数。
 
@@ -373,7 +371,9 @@ const squareVertexColor = new Float32Array( [
         this.renderPassEncoder.setVertexBuffer( 1, colorBuffer, 0 );
 ```
 
-可以看到，我们创建了一个独立的 `GPUBuffer` 用于储存顶点颜色数据，并使用 `setSubData()` 接口，把顶点颜色数组传递给 GPU。
+可以看到，我们创建了一个独立的 `GPUBuffer` 用于储存顶点颜色数据，并使用 `setSubData()` 接口设置数据，最后绑定到当前的渲染通道上，把顶点颜色数组传递给 GPU。
+
+这样我们就完成多 Buffer 结构的数据传递。总的来说，就是**多个 `GPUBuffer`，每个 `GPUBuffer` 只有一个 `attribute`**。
 
 最后，让我们再回到上层逻辑的 `main.ts` 中。
 
