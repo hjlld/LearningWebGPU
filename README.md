@@ -17,7 +17,7 @@
  - 第 2 课 - 添加颜色
 
    - [代码](https://github.com/hjlld/LearningWebGPU/tree/master/Lesson2_Add_Color/Code)
-   - [教程]
+   - [教程](https://github.com/hjlld/LearningWebGPU/blob/master/Lesson2_Add_Color/Tutorial/Lesson2_Add_colors.md) - 完结
 
  - 第 3 课 - 动起来
 
