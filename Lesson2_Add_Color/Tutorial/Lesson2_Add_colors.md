@@ -401,4 +401,7 @@ const squareVertexColor = new Float32Array( [
 
 - 你有两种方式可以向 GPU 传递顶点数据，一种是使用一个 `GPUBuffer`，这个 `GPUBuffer` 包含多个 `attribute`；另一种是使用多个 `GPUBuffer`，每个 `GPUBuffer` 只包含一个 `attribute`。这完全取决于你的顶点属性的复用性程度。
 
+- 另外，你当然也可以使用多个 `GPUBuffer`，每个 `GPUBuffer` 包含一个或多个 `attribute`。这完全取决于你的 3D 应用的具体需求。
+
 好了，以上就是本节课的全部内容。
+
