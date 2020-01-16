@@ -28,3 +28,8 @@
 
    - [代码](https://github.com/hjlld/LearningWebGPU/tree/master/Lesson4_Someting_real_3D/Code)
    - [教程]
+
+ - 第 5 课 - 引入纹理
+
+   - [代码](https://github.com/hjlld/LearningWebGPU/tree/master/Lesson5_Texture/Code)
+   - [教程]
