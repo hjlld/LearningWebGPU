@@ -166,6 +166,106 @@ export class App {
 
     }
 
+    public LoadTexture( url: string ) {
+
+        let image = new Image();
+
+        image.src = url;
+
+        return image.decode()
+
+        .then( () => {
+
+            let canvas = document.createElement( 'canvas' );
+
+            canvas.width = image.width;
+
+            canvas.height = image.width;
+
+            let context2D = canvas.getContext( '2d' );
+
+            context2D.drawImage( image, 0, 0, image.width, image.height );
+
+            let imageData = context2D.getImageData( 0, 0, image.width, image.height );
+
+            let dataView = new Uint8Array( imageData.data.buffer );
+
+            let texture = this.device.createTexture( {
+
+                size: {
+
+                    width: image.width,
+
+                    height: image.height,
+
+                    depth: 1
+
+                },
+
+                format: 'rgba8unorm',
+
+                usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.SAMPLED
+
+            } );
+
+            let textureBuffer = this.device.createBuffer( {
+
+                size: dataView.byteLength,
+
+                usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC
+
+            } );
+
+            textureBuffer.setSubData( 0, dataView );
+
+            let source: GPUBufferCopyView = {
+
+                buffer: textureBuffer,
+
+                rowPitch: image.width * 4,
+
+                imageHeight: 0
+
+            };
+
+            let destination: GPUTextureCopyView = {
+
+                texture: texture
+
+            };
+
+            let copySize: GPUExtent3D = {
+
+                width: image.width,
+
+                height: image.height,
+
+                depth: 1
+
+            };
+
+            let commandEncoder = this.device.createCommandEncoder();
+
+            commandEncoder.copyBufferToTexture( source, destination, copySize );
+
+            this.device.defaultQueue.submit( [ commandEncoder.finish() ] );
+
+            let sampler = this.device.createSampler( {
+
+                magFilter: 'linear',
+
+                minFilter: 'linear',
+
+                maxAnisotropy: 4
+
+            } );
+
+            return { texture, sampler };
+
+        } );
+
+    }
+
     public InitPipelineWitMultiBuffers( vxCode: string, fxCode: string ) {
 
         this.uniformGroupLayout = this.device.createBindGroupLayout( {
@@ -179,6 +279,26 @@ export class App {
                     visibility: GPUShaderStage.VERTEX,
 
                     type: 'uniform-buffer'
+
+                },
+
+                {
+
+                    binding: 1,
+
+                    visibility: GPUShaderStage.FRAGMENT,
+
+                    type: 'sampler'
+
+                },
+
+                {
+
+                    binding: 2,
+
+                    visibility: GPUShaderStage.FRAGMENT,
+
+                    type: 'sampled-texture'
 
                 }
 
@@ -258,11 +378,11 @@ export class App {
 
                     {
 
-                        arrayStride: 4 * 4,
+                        arrayStride: 4 * 2,
 
                         attributes: [
 
-                            // color
+                            // uv
 
                             {
 
@@ -270,7 +390,7 @@ export class App {
 
                                 offset: 0,
 
-                                format: 'float4'
+                                format: 'float2'
 
                             }
 
@@ -312,7 +432,7 @@ export class App {
 
     }
 
-    public InitGPUBufferWithMultiBuffers( vxArray: Float32Array, colorArray: Float32Array, mxArray: Float32Array, idxArray?: Uint32Array ) {
+    public InitGPUBufferWithMultiBuffers( vxArray: Float32Array, uvArray: Float32Array, mxArray: Float32Array, idxArray: Uint32Array, texture: GPUTexture, sampler: GPUSampler ) {
 
         let vertexBuffer: GPUBuffer = this.device.createBuffer( {
 
@@ -326,17 +446,17 @@ export class App {
 
         this.renderPassEncoder.setVertexBuffer( 0, vertexBuffer );
 
-        let colorBuffer: GPUBuffer = this.device.createBuffer( {
+        let uvBuffer: GPUBuffer = this.device.createBuffer( {
 
-            size: colorArray.length * 4,
+            size: uvArray.length * 4,
 
             usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
 
         } );
 
-        colorBuffer.setSubData( 0, colorArray );
+        uvBuffer.setSubData( 0, uvArray );
 
-        this.renderPassEncoder.setVertexBuffer( 1, colorBuffer, 0 );
+        this.renderPassEncoder.setVertexBuffer( 1, uvBuffer, 0 );
 
         if ( idxArray ) {
 
@@ -367,13 +487,32 @@ export class App {
 
             layout: this.uniformGroupLayout,
 
-            bindings: [ {
+            bindings: [ 
+                
+                {
 
-                binding: 0,
+                    binding: 0,
 
-                resource: { buffer: uniformBuffer }
+                    resource: { buffer: uniformBuffer }
 
-            } ]
+                },
+
+                {
+
+                    binding: 1,
+
+                    resource: sampler
+
+                },
+
+                {
+
+                    binding: 2,
+
+                    resource: texture.createView()
+
+                }
+            ]
 
         } );
 

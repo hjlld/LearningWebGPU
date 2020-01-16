@@ -2,123 +2,85 @@ import { App } from './app';
 import vxCode from './shader/vertex.glsl';
 import fxCode from './shader/fragment.glsl'
 import { PerspectiveCamera, Matrix4, Vector3 } from 'three';
-
-const pyramidVertexPositon = new Float32Array( [
-  
-    // Front face
-     0.0,  1.0,  0.0,
-    -1.0, -1.0,  1.0,
-     1.0, -1.0,  1.0,
-
-    // Right face
-    0.0,  1.0,  0.0,
-    1.0, -1.0,  1.0,
-    1.0, -1.0, -1.0,
-
-    // Back face
-     0.0,  1.0,  0.0,
-     1.0, -1.0, -1.0,
-    -1.0, -1.0, -1.0,
-
-    // Left face
-     0.0,  1.0,  0.0,
-    -1.0, -1.0, -1.0,
-    -1.0, -1.0,  1.0
-
-] );
-
-const pyramidVertexColor = new Float32Array( [
-
-    // Front face
-    1.0, 0.0, 0.0, 1.0,
-    0.0, 1.0, 0.0, 1.0,
-    0.0, 0.0, 1.0, 1.0,
-
-    // Right face
-    1.0, 0.0, 0.0, 1.0,
-    0.0, 0.0, 1.0, 1.0,
-    0.0, 1.0, 0.0, 1.0,
-
-    // Back face
-    1.0, 0.0, 0.0, 1.0,
-    0.0, 1.0, 0.0, 1.0,
-    0.0, 0.0, 1.0, 1.0,
-
-    // Left face
-    1.0, 0.0, 0.0, 1.0,
-    0.0, 0.0, 1.0, 1.0,
-    0.0, 1.0, 0.0, 1.0
-
-] );
-
-const pyramidMVMatrix = new Matrix4();
+import neheGIF from './texture/nehe.gif';
 
 const cubeVertexPosition = new Float32Array( [
 
-    // Front face
-    -1.0, -1.0,  1.0,
-     1.0, -1.0,  1.0,
-     1.0,  1.0,  1.0,
-    -1.0,  1.0,  1.0,
+            // Front face
+            -1.0, -1.0,  1.0,
+             1.0, -1.0,  1.0,
+             1.0,  1.0,  1.0,
+            -1.0,  1.0,  1.0,
 
-    // Back face
-    -1.0, -1.0, -1.0,
-    -1.0,  1.0, -1.0,
-     1.0,  1.0, -1.0,
-     1.0, -1.0, -1.0,
+            // Back face
+            -1.0, -1.0, -1.0,
+            -1.0,  1.0, -1.0,
+             1.0,  1.0, -1.0,
+             1.0, -1.0, -1.0,
 
-    // Top face
-    -1.0,  1.0, -1.0,
-    -1.0,  1.0,  1.0,
-     1.0,  1.0,  1.0,
-     1.0,  1.0, -1.0,
+            // Top face
+            -1.0,  1.0, -1.0,
+            -1.0,  1.0,  1.0,
+             1.0,  1.0,  1.0,
+             1.0,  1.0, -1.0,
 
-    // Bottom face
-    -1.0, -1.0, -1.0,
-     1.0, -1.0, -1.0,
-     1.0, -1.0,  1.0,
-    -1.0, -1.0,  1.0,
+            // Bottom face
+            -1.0, -1.0, -1.0,
+             1.0, -1.0, -1.0,
+             1.0, -1.0,  1.0,
+            -1.0, -1.0,  1.0,
 
-    // Right face
-    1.0, -1.0, -1.0,
-    1.0,  1.0, -1.0,
-    1.0,  1.0,  1.0,
-    1.0, -1.0,  1.0,
+            // Right face
+             1.0, -1.0, -1.0,
+             1.0,  1.0, -1.0,
+             1.0,  1.0,  1.0,
+             1.0, -1.0,  1.0,
 
-    // Left face
-    -1.0, -1.0, -1.0,
-    -1.0, -1.0,  1.0,
-    -1.0,  1.0,  1.0,
-    -1.0,  1.0, -1.0
+            // Left face
+            -1.0, -1.0, -1.0,
+            -1.0, -1.0,  1.0,
+            -1.0,  1.0,  1.0,
+            -1.0,  1.0, -1.0,
 
 ] );
 
-const cubeVertexColor = new Float32Array( [
+const cubeVertexUV = new Float32Array( [
 
-    1.0, 0.0, 0.0, 1.0, // Front face
-    1.0, 0.0, 0.0, 1.0, // Front face
-    1.0, 0.0, 0.0, 1.0, // Front face
-    1.0, 0.0, 0.0, 1.0, // Front face
-    1.0, 1.0, 0.0, 1.0, // Back face
-    1.0, 1.0, 0.0, 1.0, // Back face
-    1.0, 1.0, 0.0, 1.0, // Back face
-    1.0, 1.0, 0.0, 1.0, // Back face
-    0.0, 1.0, 0.0, 1.0, // Top face
-    0.0, 1.0, 0.0, 1.0, // Top face
-    0.0, 1.0, 0.0, 1.0, // Top face
-    0.0, 1.0, 0.0, 1.0, // Top face
-    1.0, 0.5, 0.5, 1.0, // Bottom face
-    1.0, 0.5, 0.5, 1.0, // Bottom face
-    1.0, 0.5, 0.5, 1.0, // Bottom face
-    1.0, 0.5, 0.5, 1.0, // Bottom face
-    1.0, 0.0, 1.0, 1.0, // Right face
-    1.0, 0.0, 1.0, 1.0, // Right face
-    1.0, 0.0, 1.0, 1.0, // Right face
-    1.0, 0.0, 1.0, 1.0, // Right face
-    0.0, 0.0, 1.0, 1.0,  // Left face
-    0.0, 0.0, 1.0, 1.0, // Left face
-    0.0, 0.0, 1.0, 1.0,  // Left face
-    0.0, 0.0, 1.0, 1.0  // Left face
+          // Front face
+          0.0, 0.0,
+          1.0, 0.0,
+          1.0, 1.0,
+          0.0, 1.0,
+
+          // Back face
+          1.0, 0.0,
+          1.0, 1.0,
+          0.0, 1.0,
+          0.0, 0.0,
+
+          // Top face
+          0.0, 1.0,
+          0.0, 0.0,
+          1.0, 0.0,
+          1.0, 1.0,
+
+          // Bottom face
+          1.0, 1.0,
+          0.0, 1.0,
+          0.0, 0.0,
+          1.0, 0.0,
+
+          // Right face
+          1.0, 0.0,
+          1.0, 1.0,
+          0.0, 1.0,
+          0.0, 0.0,
+
+          // Left face
+          0.0, 0.0,
+          1.0, 0.0,
+          1.0, 1.0,
+          0.0, 1.0,
 
 ] );
 
@@ -159,7 +121,19 @@ let main = async () => {
 
         app.InitPipelineWitMultiBuffers( vxCode, fxCode );
 
-        let lastTime = 0, rPyramid = 0, rCube = 0;
+        return app.LoadTexture( neheGIF )
+
+        .then( ( { texture, sampler } ) => {
+
+            return { texture, sampler, colorAttachment, depthStencilAttachment };
+
+        } );
+    
+    } )
+
+    .then( ( { texture, sampler, colorAttachment, depthStencilAttachment } ) => {
+
+        let lastTime = 0, xRot = 0, yRot = 0, zRot = 0;
      
         let animate = () => {
     
@@ -168,11 +142,10 @@ let main = async () => {
             if ( lastTime != 0 ) {
     
                 let elapsed = timeNow - lastTime;
-     
-                rPyramid += ( Math.PI / 180 * 90 * elapsed ) / 1000.0;
-    
-                rCube -= ( Math.PI / 180 * 75 * elapsed ) / 1000.0;
-    
+         
+                xRot += ( Math.PI / 180 * 90 * elapsed ) / 1000.0;
+                yRot += ( Math.PI / 180 * 90 * elapsed ) / 1000.0;
+                zRot += ( Math.PI / 180 * 90 * elapsed ) / 1000.0;    
             }
     
             lastTime = timeNow;
@@ -185,28 +158,23 @@ let main = async () => {
             app.InitRenderPass( backgroundColor, colorAttachment, depthStencilAttachment );
     
             app.renderPassEncoder.setPipeline( app.renderPipeline );
-            
-            pyramidMVMatrix.makeTranslation( -1.5, 0.0, -8.0 ).multiply( new Matrix4().makeRotationY( rPyramid ) );
-    
-            cubeMVMatrix.makeTranslation( 1.5, 0.0, -8.0 ).multiply( new Matrix4().makeRotationAxis( new Vector3( 1.0, 1.0, 1.0 ).normalize(), rCube ) );
-    
-            let triangleUniformBufferView = new Float32Array( pMatrix.toArray().concat( pyramidMVMatrix.toArray() ) );
-    
-            let squareUniformBufferView = new Float32Array( pMatrix.toArray().concat( cubeMVMatrix.toArray() ) );
+                
+            cubeMVMatrix.makeTranslation( 0, 0, -5.0 )
+                .multiply( new Matrix4().makeRotationX( xRot ) )
+                .multiply( new Matrix4().makeRotationY( yRot ) )
+                .multiply( new Matrix4().makeRotationZ( zRot ) );
         
-            app.InitGPUBufferWithMultiBuffers( pyramidVertexPositon, pyramidVertexColor, triangleUniformBufferView );
-    
-            app.Draw( pyramidVertexPositon.length / 3 );
-            
-            app.InitGPUBufferWithMultiBuffers( cubeVertexPosition, cubeVertexColor, squareUniformBufferView, cubeIndex );
+            let squareUniformBufferView = new Float32Array( pMatrix.toArray().concat( cubeMVMatrix.toArray() ) );
+                    
+            app.InitGPUBufferWithMultiBuffers( cubeVertexPosition, cubeVertexUV, squareUniformBufferView, cubeIndex, texture, sampler );
     
             app.DrawIndexed( cubeIndex.length );
     
             app.Present();
         
         } );
-    
-    } );
+
+    })
 
 }
 
