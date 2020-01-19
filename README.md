@@ -33,3 +33,8 @@
 
    - [代码](https://github.com/hjlld/LearningWebGPU/tree/master/Lesson5_Texture/Code)
    - [教程]
+
+ - 第 6 课 - 键盘输入和纹理过滤
+
+   - [代码](https://github.com/hjlld/LearningWebGPU/tree/master/Lesson6_Interactive_and_texture_filter/Code)
+   - [教程]
