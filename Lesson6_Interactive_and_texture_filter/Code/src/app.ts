@@ -36,13 +36,7 @@ export class App {
 
             minFilter: 'nearest',
 
-        },
-
-        {
-
-            magFilter: 'linear',
-
-            minFilter: 'linear',
+            maxAnisotropy: 4,
 
         },
 
@@ -51,8 +45,20 @@ export class App {
             magFilter: 'linear',
 
             minFilter: 'linear',
+            
+            maxAnisotropy: 4,
 
-            mipmapFilter: 'linear'
+        },
+
+        {
+
+            magFilter: 'linear',
+
+            minFilter: 'linear',
+
+            mipmapFilter: 'linear',
+
+            maxAnisotropy: 4,
 
         },
 

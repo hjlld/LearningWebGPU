@@ -199,11 +199,11 @@ let main = async () => {
                 
             cubeMVMatrix.makeTranslation( 0, 0, z )
                 .multiply( new Matrix4().makeRotationX( xRot ) )
-                .multiply( new Matrix4().makeRotationY( yRot ) )
+                .multiply( new Matrix4().makeRotationY( yRot ) );
         
-            let squareUniformBufferView = new Float32Array( pMatrix.toArray().concat( cubeMVMatrix.toArray() ) );
+            let cubeUniformBufferView = new Float32Array( pMatrix.toArray().concat( cubeMVMatrix.toArray() ) );
                     
-            app.InitGPUBufferWithMultiBuffers( cubeVertexPosition, cubeVertexUV, squareUniformBufferView, cubeIndex, texture, app.samplers[ samplerIndex ] );
+            app.InitGPUBufferWithMultiBuffers( cubeVertexPosition, cubeVertexUV, cubeUniformBufferView, cubeIndex, texture, app.samplers[ samplerIndex ] );
     
             app.DrawIndexed( cubeIndex.length );
     

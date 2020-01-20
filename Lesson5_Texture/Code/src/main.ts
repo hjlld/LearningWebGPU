@@ -164,9 +164,9 @@ let main = async () => {
                 .multiply( new Matrix4().makeRotationY( yRot ) )
                 .multiply( new Matrix4().makeRotationZ( zRot ) );
         
-            let squareUniformBufferView = new Float32Array( pMatrix.toArray().concat( cubeMVMatrix.toArray() ) );
+            let cubeUniformBufferView = new Float32Array( pMatrix.toArray().concat( cubeMVMatrix.toArray() ) );
                     
-            app.InitGPUBufferWithMultiBuffers( cubeVertexPosition, cubeVertexUV, squareUniformBufferView, cubeIndex, texture, sampler );
+            app.InitGPUBufferWithMultiBuffers( cubeVertexPosition, cubeVertexUV, cubeUniformBufferView, cubeIndex, texture, sampler );
     
             app.DrawIndexed( cubeIndex.length );
     

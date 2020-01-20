@@ -190,15 +190,15 @@ let main = async () => {
     
             cubeMVMatrix.makeTranslation( 1.5, 0.0, -8.0 ).multiply( new Matrix4().makeRotationAxis( new Vector3( 1.0, 1.0, 1.0 ).normalize(), rCube ) );
     
-            let triangleUniformBufferView = new Float32Array( pMatrix.toArray().concat( pyramidMVMatrix.toArray() ) );
+            let pyramidUniformBufferView = new Float32Array( pMatrix.toArray().concat( pyramidMVMatrix.toArray() ) );
     
-            let squareUniformBufferView = new Float32Array( pMatrix.toArray().concat( cubeMVMatrix.toArray() ) );
+            let cubeUniformBufferView = new Float32Array( pMatrix.toArray().concat( cubeMVMatrix.toArray() ) );
         
-            app.InitGPUBufferWithMultiBuffers( pyramidVertexPositon, pyramidVertexColor, triangleUniformBufferView );
+            app.InitGPUBufferWithMultiBuffers( pyramidVertexPositon, pyramidVertexColor, pyramidUniformBufferView );
     
             app.Draw( pyramidVertexPositon.length / 3 );
             
-            app.InitGPUBufferWithMultiBuffers( cubeVertexPosition, cubeVertexColor, squareUniformBufferView, cubeIndex );
+            app.InitGPUBufferWithMultiBuffers( cubeVertexPosition, cubeVertexColor, cubeUniformBufferView, cubeIndex );
     
             app.DrawIndexed( cubeIndex.length );
     
