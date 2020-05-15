@@ -2,6 +2,12 @@
 
 本教程受原本的 LearningWebGL.com 中的 WebGL 教程启发。
 
+> 本教程近期将重新开始更新。
+> 停更的原因主要是因为到了第 6 课需写 mipmap 的时候，发现现在 WebGPU 根本没有生成 mipmap 的函数；
+> 只能回滚到 WebGL 用 `gl.generateMipmap()` 来生成 mipmap。
+> 在 WebGPU 仓库有个相关的 issue： https://github.com/gpuweb/gpuweb/issues/386
+
+
 ## 教程目录
 
  - 第 0 课 - 全新的开始
