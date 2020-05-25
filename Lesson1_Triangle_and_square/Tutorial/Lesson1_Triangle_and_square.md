@@ -444,7 +444,7 @@ interface GPUCommandEncoder {
 
 我们使用 `commandEncoder.beginRenderPass()` 函数来开启了一个渲染通道。这个函数接受一个类型为 `GPURenderPassDescriptor` 的参数作为渲染通道的选项。
 
-这个 `GPURenderPassDescriptor` 也是直接参考 Metal 标准制定的，你可以直接在 Apple 开发文档中找到它的表兄[`MTLRenderPassDescriptor`](https://developer.apple.com/documentation/metal/mtlrenderpassdescriptor)
+这个 `GPURenderPassDescriptor` 也是直接参考 Metal 标准制定的，你可以直接在 Apple 开发文档中找到它的表兄 [`MTLRenderPassDescriptor`](https://developer.apple.com/documentation/metal/mtlrenderpassdescriptor)。
 
 ```typescript
 dictionary GPURenderPassDescriptor : GPUObjectDescriptorBase {
@@ -850,68 +850,77 @@ layout(binding = 0) uniform Uniforms {
 
 - `mxArray`：透视矩阵和模型视图矩阵的数组，类型是 `Float32Array`。
 
-我们要做的基本就是将这些 JavaScript 中的数组，绑定到渲染通道中，以便渲染管线中的着色器可以正确的读取它们。
+我们要做的基本就是将这些 JavaScript 中的数组，绑定到渲染通道中，以便渲染管线中的着色器可以正确的读取它们，也就是将数据从 CPU 端上传到 GPU 端。
+
+在本教程的之前版本，我们使用的方法是新建一个 `GPUBuffer` 然后使用 `setSubData()` 方法来将 JavaScript 中的数据上传到 GPU 中，但实际上这个接口已经被从 WebGPU 标准中移除了。我们在之前这么使用是因为 `setSubData()` 接口比较简单，而且在现在并不多的 WebGPU 示例中，大部分都使用了这个接口，所以为了兼容考虑，Chrome Canary 也依然保留了对它的支持。
+
+但是，这个方法并不是值得信赖的，因为从 CPU 将数据上传到 GPU 本身是一个复杂的异步过程，但是 `setSubData()` 方法本身已经是原子操作了，让你无法深入其中，而唯一能做的就是信赖 WebGPU 实现，也就是浏览器能够正确处理这个过程。所以这个方法的早期实现版本，早在 2019 年 4 月就已经被[移除](https://github.com/gpuweb/gpuweb/commit/de471bf370118f21340de4652c1fcd4c7e2b310f)了。
+
+另一方面，本教程现在使用的方法是 `createBufferMapped()`，它的问题在于：它用起来实在太麻烦了。所以，标准制定者仍在寻找更便捷、更优化、更合理的方式，解决 GPU 数据上传的问题。目前看来，`GPUQueue.writeBuffer()` 会是一个很好的解决方案。但是这个目前 Chrome Canary 还未能实现这个接口。所以我们依然使用 `createBufferMapped()`。
+
+为了方便使用这个麻烦的方法，我们新建了一个私有方法 `_CreateGPUBuffer()` 来完成这一操作。
 
 ```typescript
-        let vertexBuffer: GPUBuffer = this.device.createBuffer( {
+    private _CreateGPUBuffer( typedArray: TypedArray, usage: GPUBufferUsageFlags ) {
 
-            size: vxArray.length * 4,
+        let [ gpuBuffer, arrayBuffer ] = this.device.createBufferMapped( {
 
-            usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+            size: typedArray.byteLength,
+
+            usage: usage | GPUBufferUsage.COPY_DST
 
         } );
 
-        vertexBuffer.setSubData( 0, vxArray );
+        let constructor = typedArray.constructor as new ( buffer: ArrayBuffer ) => TypedArray;
 
-        this.renderPassEncoder.setVertexBuffer( 0, vertexBuffer );
+        let view = new constructor( arrayBuffer );
+
+        view.set( typedArray, 0 );
+
+        gpuBuffer.unmap();
+
+        return gpuBuffer;
+
+    }
+
 ```
 
-首先我们使用 GPU 设备创建了一个缓存用于储存顶点坐标位置。
+首先我们使用 GPU 设备创建了一个映射缓存用于储存顶点坐标位置。根据 WebGPU 标准，这个映射缓存应当是一个长度为 2 的序列，其中第 0 个元素是 `GPUBuffer`，第 1 个元素则是与之“映射”的 CPU 中的 `ArrayBuffer`。在这里，我们使用 JavaScript 中的解构语法，获得了这个映射缓存的两个元素。
 
-和前面提到的步进的概念类似，GPU 中缓存的单位是 `byte`，所以这个缓存的大小是 `vxArray` 这个 `Float32Array` 长度的 4 倍。
+其中，和前面提到的步进的概念类似，GPU 中缓存的单位是 `byte`，所以这个缓存的大小是应当是传入的类型化数组的 `byteLength` 而不是 `length`。
 
-这个缓存有两个用途，首先他将用于顶点位置，所以是 `GPUBufferUsage.VERTEX`；其次，这块缓存被创建后，我们将从 JavaScript 中拷贝数据（也就是 `vxArray`）到这块缓存中，所以它还要设置一个名为“拷贝目标”的用途，即 `GPUBufferUsage.COPY_DST`。
+这个缓存有两个用途，首先他有自身的绘制用途，也就是顶点位置、顶点索引或变换矩阵；其次，这块缓存被创建后，我们将从 JavaScript 中拷贝数据到这块缓存中，所以它还要设置一个名为“拷贝目标”的用途，即 `GPUBufferUsage.COPY_DST`。
 
 在 WebGPU 中，当我们需要同时设置两个用途的时候，我们使用 JavaScript 中的按位“或”操作符将其连接在一起。你可以在 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators#Bitwise_OR) 文档中，找到这个操作符的说明。
 
-然后，我们使用 `setSubData()` 接口，设置这块缓存的数据。
+然后，我们使用类型化数组和 `ArrayBuffer` 的一系列操作，将传入的数据绑定到这个映射缓存的 CPU 部分。
 
-最后我们将它设定到当前的渲染通道中。
+最后，我们使用 `gpuBuffer.unmap()` 接口，关闭映射操作，并返回这个 `GPUBuffer`。
 
-类似的，我们用同样的手段设置了顶点索引的缓存。
+得到映射完毕的 `GPUBuffer` 之后，我们再将它设定到当前的渲染通道中。
+
+我们用以上相同的手段设置了顶点位置和顶点索引的缓存。
 
 ```typescript
-        let indexBuffer: GPUBuffer = this.device.createBuffer( {
+        let vertexBuffer = this._CreateGPUBuffer( vxArray, GPUBufferUsage.VERTEX );
 
-            size: idxArray.length * 4,
+        this.renderPassEncoder.setVertexBuffer( 0, vertexBuffer );
 
-            usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST
+        let indexBuffer = this._CreateGPUBuffer( idxArray, GPUBufferUsage.INDEX );
 
-        } );
-    
-        indexBuffer.setSubData( 0, idxArray );
-    
         this.renderPassEncoder.setIndexBuffer( indexBuffer );
 ```
 
 我们还剩下一个透视矩阵和模型视图矩阵的数组需要设置到 GPU 缓存中。
 
 ```typescript
-        let uniformBuffer: GPUBuffer = this.device.createBuffer( {
-
-            size: mxArray.length * 4,
-
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-
-        } );
-
-        uniformBuffer.setSubData( 0, mxArray );
+        let uniformBuffer = this._CreateGPUBuffer( mxArray, GPUBufferUsage.UNIFORM );
 
         let uniformBindGroup = this.device.createBindGroup( {
 
             layout: this.uniformGroupLayout,
 
-            bindings: [ {
+            entries: [ {
 
                 binding: 0,
 

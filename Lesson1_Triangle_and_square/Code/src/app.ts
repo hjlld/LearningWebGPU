@@ -1,4 +1,5 @@
 import glslangModule from '@webgpu/glslang/dist/web-devel/glslang.onefile';
+import { TypedArray } from 'three';
 
 export class App {
 
@@ -99,7 +100,7 @@ export class App {
 
         this.uniformGroupLayout = this.device.createBindGroupLayout( {
 
-            bindings: [
+            entries: [
 
                 {
 
@@ -199,71 +200,45 @@ export class App {
 
     }
 
-    public InitGPUBuffer( vxArray: Float32Array, idxArray: Uint32Array, mxArray: Float32Array ) {
+    private _CreateGPUBuffer( typedArray: TypedArray, usage: GPUBufferUsageFlags ) {
 
-        let vertexBuffer: GPUBuffer = this.device.createBuffer( {
+        let [ gpuBuffer, arrayBuffer ] = this.device.createBufferMapped( {
 
-            size: vxArray.length * 4,
+            size: typedArray.byteLength,
 
-            usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+            usage: usage | GPUBufferUsage.COPY_DST
 
         } );
 
-        vertexBuffer.setSubData( 0, vxArray );
+        let constructor = typedArray.constructor as new ( buffer: ArrayBuffer ) => TypedArray;
 
-        /**
-         * In effect, GPUBuffer.setSubData() was removed from WebGPU spec, 
-         * according to the spec we should use the following code 
-         * to upload data to GPUBuffer, but it's really not easy to use.
-         * And because GPUBuffer.setSubData() is used by majority WebGPU samples,
-         * so acutally it is still supported by the implementation in Chrome Canary 
-         * So here we will keep using it until
-         * the work group find any other easy way to replace it.
-         */ 
+        let view = new constructor( arrayBuffer );
 
-        // let [ vertexBuffer, buffer ] = this.device.createBufferMapped( {
+        view.set( typedArray, 0 );
 
-        //     size: vxArray.length * 4,
+        gpuBuffer.unmap();
 
-        //     usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+        return gpuBuffer;
 
-        // } );
+    }
 
-        // let view = new Float32Array( buffer );
+    public InitGPUBuffer( vxArray: Float32Array, idxArray: Uint32Array, mxArray: Float32Array ) {
 
-        // view.set( vxArray, 0 );
-
-        // vertexBuffer.unmap();
+        let vertexBuffer = this._CreateGPUBuffer( vxArray, GPUBufferUsage.VERTEX );
 
         this.renderPassEncoder.setVertexBuffer( 0, vertexBuffer );
 
-        let indexBuffer: GPUBuffer = this.device.createBuffer( {
+        let indexBuffer = this._CreateGPUBuffer( idxArray, GPUBufferUsage.INDEX );
 
-            size: idxArray.length * 4,
-
-            usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST
-
-        } );
-    
-        indexBuffer.setSubData( 0, idxArray );
-    
         this.renderPassEncoder.setIndexBuffer( indexBuffer );
 
-        let uniformBuffer: GPUBuffer = this.device.createBuffer( {
-
-            size: mxArray.length * 4,
-
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-
-        } );
-
-        uniformBuffer.setSubData( 0, mxArray );
+        let uniformBuffer = this._CreateGPUBuffer( mxArray, GPUBufferUsage.UNIFORM );
 
         let uniformBindGroup = this.device.createBindGroup( {
 
             layout: this.uniformGroupLayout,
 
-            bindings: [ {
+            entries: [ {
 
                 binding: 0,
 

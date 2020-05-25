@@ -1,4 +1,5 @@
 import glslangModule from '@webgpu/glslang/dist/web-devel/glslang.onefile';
+import { TypedArray, Camera } from 'three';
 
 export class App {
 
@@ -220,79 +221,146 @@ export class App {
 
         .then( () => {
 
-            let canvas = document.createElement( 'canvas' );
+            let width = image.naturalWidth;
 
-            canvas.width = image.width;
+            let height = image.naturalHeight;
 
-            canvas.height = image.width;
-
-            let context2D = canvas.getContext( '2d' );
-
-            context2D.drawImage( image, 0, 0, image.width, image.height );
-
-            let imageData = context2D.getImageData( 0, 0, image.width, image.height );
-
-            let dataView = new Uint8Array( imageData.data.buffer );
+            let levels = Math.floor( Math.log2( Math.max( width, height ) ) );
 
             let texture = this.device.createTexture( {
 
-                size: {
-
-                    width: image.width,
-
-                    height: image.height,
-
-                    depth: 1
-
-                },
+                size: { width, height, depth: 1 },
 
                 format: 'rgba8unorm',
 
                 usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.SAMPLED,
 
-            } );
-
-            let textureBuffer = this.device.createBuffer( {
-
-                size: dataView.byteLength,
-
-                usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC
+                mipLevelCount: levels + 1
 
             } );
 
-            textureBuffer.setSubData( 0, dataView );
+            // only support PO2 size square texture now
 
-            let source: GPUBufferCopyView = {
+            let canvas = document.createElement( 'canvas' );
 
-                buffer: textureBuffer,
+            canvas.width = width;
 
-                rowPitch: image.width * 4,
+            canvas.height = height;
 
-                imageHeight: 0
+            let gl = canvas.getContext( 'webgl2' ) as WebGL2RenderingContext;
 
-            };
+            let glTexture = gl.createTexture();
 
-            let destination: GPUTextureCopyView = {
+            gl.bindTexture( gl.TEXTURE_2D, glTexture );
 
-                texture: texture
+            gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image );
 
-            };
+            gl.generateMipmap( gl.TEXTURE_2D );
 
-            let copySize: GPUExtent3D = {
+            let frameBuffer = gl.createFramebuffer();
 
-                width: image.width,
+            gl.bindFramebuffer( gl.FRAMEBUFFER, frameBuffer );
 
-                height: image.height,
+            for ( let i = 0; i <= levels; i ++ ) {
 
-                depth: 1
+                if ( i > 0 ) {
 
-            };
+                    width = Math.max( Math.floor( width / 2 ), 1 );
 
-            let commandEncoder = this.device.createCommandEncoder();
+                    height = Math.max( Math.floor( height / 2 ), 1);
+    
+                }
 
-            commandEncoder.copyBufferToTexture( source, destination, copySize );
+                gl.framebufferTexture2D( gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, glTexture, i );
 
-            this.device.defaultQueue.submit( [ commandEncoder.finish() ] );
+                let buffer = new Uint8Array( 4 * width * height );
+
+                gl.readPixels( 0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, buffer );
+
+                let bytesPerRow = Math.ceil( width * 4 / 256 ) * 256;
+
+                let destination: GPUTextureCopyView = {
+        
+                    texture: texture,
+
+                    mipLevel: i,
+    
+                };
+
+                let copySize: GPUExtent3D = {
+
+                    width: width,
+    
+                    height: height,
+    
+                    depth: 1
+    
+                };
+
+                let commandEncoder = this.device.createCommandEncoder();
+
+                if ( bytesPerRow === width * 4 ) {
+
+                    let textureBuffer = this._CreateGPUBuffer( buffer, GPUBufferUsage.COPY_SRC );
+
+                    let source: GPUBufferCopyView = {
+    
+                        buffer: textureBuffer,
+        
+                        bytesPerRow: bytesPerRow,
+        
+                        rowsPerImage: height,
+    
+                        offset: 0
+        
+                    };
+        
+                    commandEncoder.copyBufferToTexture( source, destination, copySize );
+                    
+                } else {
+
+                    let aligned = new Uint8Array( bytesPerRow * height );
+
+                    let index = 0;
+
+                    for ( let y = 0; y < height; ++ y ) {
+
+                        for ( let x = 0; x < width; ++ x ) {
+
+                            let i = x * 4 + y * bytesPerRow;
+
+                            aligned[ i ] = buffer[ index ];
+                            aligned[ i + 1 ] = buffer[ index + 1 ];
+                            aligned[ i + 2 ] = buffer[ index + 2 ];
+                            aligned[ i + 3 ] = buffer[ index + 3 ];
+                            
+                            index += 4;
+
+                        }
+
+                    }
+
+                    let textureBuffer = this._CreateGPUBuffer( aligned, GPUBufferUsage.COPY_SRC );
+
+                    let source: GPUBufferCopyView = {
+    
+                        buffer: textureBuffer,
+        
+                        bytesPerRow: bytesPerRow,
+        
+                        rowsPerImage: height,
+    
+                        offset: 0
+        
+                    };
+        
+                    commandEncoder.copyBufferToTexture( source, destination, copySize );
+
+                }
+
+                this.device.defaultQueue.submit( [ commandEncoder.finish() ] );
+
+            }
 
             return texture;
 
@@ -304,7 +372,7 @@ export class App {
 
         this.uniformGroupLayout = this.device.createBindGroupLayout( {
 
-            bindings: [
+            entries: [
 
                 {
 
@@ -466,62 +534,49 @@ export class App {
 
     }
 
-    public InitGPUBufferWithMultiBuffers( vxArray: Float32Array, uvArray: Float32Array, mxArray: Float32Array, idxArray: Uint32Array, texture: GPUTexture, sampler: GPUSampler ) {
+    private _CreateGPUBuffer( typedArray: TypedArray, usage: GPUBufferUsageFlags ) {
 
-        let vertexBuffer: GPUBuffer = this.device.createBuffer( {
+        let [ gpuBuffer, arrayBuffer ] = this.device.createBufferMapped( {
 
-            size: vxArray.length * 4,
+            size: typedArray.byteLength,
 
-            usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+            usage: usage | GPUBufferUsage.COPY_DST
 
         } );
 
-        vertexBuffer.setSubData( 0, vxArray );
+        let constructor = typedArray.constructor as new ( buffer: ArrayBuffer ) => TypedArray;
+
+        let view = new constructor( arrayBuffer );
+
+        view.set( typedArray, 0 );
+
+        gpuBuffer.unmap();
+
+        return gpuBuffer;
+
+    }
+
+    public InitGPUBufferWithMultiBuffers( vxArray: Float32Array, uvArray: Float32Array, mxArray: Float32Array, idxArray: Uint32Array, texture: GPUTexture, sampler: GPUSampler ) {
+
+        let vertexBuffer = this._CreateGPUBuffer( vxArray, GPUBufferUsage.VERTEX );
 
         this.renderPassEncoder.setVertexBuffer( 0, vertexBuffer );
 
-        let uvBuffer: GPUBuffer = this.device.createBuffer( {
-
-            size: uvArray.length * 4,
-
-            usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
-
-        } );
-
-        uvBuffer.setSubData( 0, uvArray );
+        let uvBuffer = this._CreateGPUBuffer( uvArray, GPUBufferUsage.VERTEX );
 
         this.renderPassEncoder.setVertexBuffer( 1, uvBuffer, 0 );
 
-        if ( idxArray ) {
+        let indexBuffer = this._CreateGPUBuffer( idxArray, GPUBufferUsage.INDEX );
 
-            let indexBuffer: GPUBuffer = this.device.createBuffer( {
+        this.renderPassEncoder.setIndexBuffer( indexBuffer );
 
-                size: idxArray.length * 4,
-    
-                usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST
-    
-            } );
-        
-            indexBuffer.setSubData( 0, idxArray );
-        
-            this.renderPassEncoder.setIndexBuffer( indexBuffer )
-        }
-
-        let uniformBuffer: GPUBuffer = this.device.createBuffer( {
-
-            size: mxArray.length * 4,
-
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-
-        } );
-
-        uniformBuffer.setSubData( 0, mxArray );
+        let uniformBuffer = this._CreateGPUBuffer( mxArray, GPUBufferUsage.UNIFORM );
 
         let uniformBindGroup = this.device.createBindGroup( {
 
             layout: this.uniformGroupLayout,
 
-            bindings: [ 
+            entries: [ 
                 
                 {
 

@@ -358,20 +358,12 @@ const squareVertexColor = new Float32Array( [
 然后是初始化 `GPUBuffer` 的 `InitGPUBufferWithMultiBuffers()` 函数。
 
 ```typescript
-        let colorBuffer: GPUBuffer = this.device.createBuffer( {
-
-            size: colorArray.length * 4,
-
-            usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
-
-        } );
-
-        colorBuffer.setSubData( 0, colorArray );
+        let colorBuffer = this._CreateGPUBuffer( colorArray, GPUBufferUsage.VERTEX );
 
         this.renderPassEncoder.setVertexBuffer( 1, colorBuffer, 0 );
 ```
 
-可以看到，我们创建了一个独立的 `GPUBuffer` 用于储存顶点颜色数据，并使用 `setSubData()` 接口设置数据，最后绑定到当前的渲染通道上，把顶点颜色数组传递给 GPU。
+可以看到，我们创建了一个独立的 `GPUBuffer` 用于储存顶点颜色数据，然后绑定到当前的渲染通道上，把顶点颜色数组传递给 GPU。
 
 这样我们就完成多 Buffer 结构的数据传递。总的来说，就是**多个 `GPUBuffer`，每个 `GPUBuffer` 只有一个 `attribute`**。
 

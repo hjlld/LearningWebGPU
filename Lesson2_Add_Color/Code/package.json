@@ -9,7 +9,7 @@
   "devDependencies": {
     "@babel/core": "^7.7.7",
     "@babel/plugin-syntax-import-meta": "^7.7.4",
-    "@webgpu/types": "0.0.19",
+    "@webgpu/types": "0.0.24",
     "typescript": "^3.7.4"
   },
   "scripts": {

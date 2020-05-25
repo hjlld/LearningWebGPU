@@ -1,4 +1,5 @@
 import glslangModule from '@webgpu/glslang/dist/web-devel/glslang.onefile';
+import { TypedArray } from 'three';
 
 export class App {
 
@@ -98,7 +99,7 @@ export class App {
 
         this.uniformGroupLayout = this.device.createBindGroupLayout( {
 
-            bindings: [
+            entries: [
 
                 {
 
@@ -232,7 +233,7 @@ export class App {
 
         this.uniformGroupLayout = this.device.createBindGroupLayout( {
 
-            bindings: [
+            entries: [
 
                 {
 
@@ -343,59 +344,50 @@ export class App {
         this.renderPassEncoder.setPipeline( this.renderPipeline );
 
     }
-    public InitGPUBufferWithMultiBuffers( vxArray: Float32Array, colorArray: Float32Array, idxArray: Uint32Array, mxArray: Float32Array ) {
 
-        let vertexBuffer: GPUBuffer = this.device.createBuffer( {
+    private _CreateGPUBuffer( typedArray: TypedArray, usage: GPUBufferUsageFlags ) {
 
-            size: vxArray.length * 4,
+        let [ gpuBuffer, arrayBuffer ] = this.device.createBufferMapped( {
 
-            usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+            size: typedArray.byteLength,
+
+            usage: usage | GPUBufferUsage.COPY_DST
 
         } );
 
-        vertexBuffer.setSubData( 0, vxArray );
+        let constructor = typedArray.constructor as new ( buffer: ArrayBuffer ) => TypedArray;
+
+        let view = new constructor( arrayBuffer );
+
+        view.set( typedArray, 0 );
+
+        gpuBuffer.unmap();
+
+        return gpuBuffer;
+
+    }
+
+    public InitGPUBufferWithMultiBuffers( vxArray: Float32Array, colorArray: Float32Array, idxArray: Uint32Array, mxArray: Float32Array ) {
+
+        let vertexBuffer = this._CreateGPUBuffer( vxArray, GPUBufferUsage.VERTEX );
 
         this.renderPassEncoder.setVertexBuffer( 0, vertexBuffer );
 
-        let colorBuffer: GPUBuffer = this.device.createBuffer( {
-
-            size: colorArray.length * 4,
-
-            usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
-
-        } );
-
-        colorBuffer.setSubData( 0, colorArray );
+        let colorBuffer = this._CreateGPUBuffer( colorArray, GPUBufferUsage.VERTEX );
 
         this.renderPassEncoder.setVertexBuffer( 1, colorBuffer, 0 );
 
-        let indexBuffer: GPUBuffer = this.device.createBuffer( {
-
-            size: idxArray.length * 4,
-
-            usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST
-
-        } );
-    
-        indexBuffer.setSubData( 0, idxArray );
+        let indexBuffer = this._CreateGPUBuffer( idxArray, GPUBufferUsage.INDEX );
     
         this.renderPassEncoder.setIndexBuffer( indexBuffer );
 
-        let uniformBuffer: GPUBuffer = this.device.createBuffer( {
-
-            size: mxArray.length * 4,
-
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-
-        } );
-
-        uniformBuffer.setSubData( 0, mxArray );
+        let uniformBuffer = this._CreateGPUBuffer( mxArray, GPUBufferUsage.UNIFORM );
 
         let uniformBindGroup = this.device.createBindGroup( {
 
             layout: this.uniformGroupLayout,
 
-            bindings: [ {
+            entries: [ {
 
                 binding: 0,
 
@@ -411,45 +403,21 @@ export class App {
 
     public InitGPUBuffer( vxArray: Float32Array, idxArray: Uint32Array, mxArray: Float32Array ) {
 
-        let vertexBuffer: GPUBuffer = this.device.createBuffer( {
-
-            size: vxArray.length * 4,
-
-            usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
-
-        } );
-
-        vertexBuffer.setSubData( 0, vxArray );
+        let vertexBuffer = this._CreateGPUBuffer( vxArray, GPUBufferUsage.VERTEX );
 
         this.renderPassEncoder.setVertexBuffer( 0, vertexBuffer );
 
-        let indexBuffer: GPUBuffer = this.device.createBuffer( {
+        let indexBuffer = this._CreateGPUBuffer( idxArray, GPUBufferUsage.INDEX );
 
-            size: idxArray.length * 4,
-
-            usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST
-
-        } );
-    
-        indexBuffer.setSubData( 0, idxArray );
-    
         this.renderPassEncoder.setIndexBuffer( indexBuffer );
 
-        let uniformBuffer: GPUBuffer = this.device.createBuffer( {
-
-            size: mxArray.length * 4,
-
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-
-        } );
-
-        uniformBuffer.setSubData( 0, mxArray );
+        let uniformBuffer = this._CreateGPUBuffer( mxArray, GPUBufferUsage.UNIFORM );
 
         let uniformBindGroup = this.device.createBindGroup( {
 
             layout: this.uniformGroupLayout,
 
-            bindings: [ {
+            entries: [ {
 
                 binding: 0,
 
@@ -462,6 +430,7 @@ export class App {
         this.renderPassEncoder.setBindGroup( 0, uniformBindGroup );
 
     }
+
 
     public Draw( indexCount: number ) {
 
