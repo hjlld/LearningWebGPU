@@ -1,5 +1,5 @@
 import glslangModule from '@webgpu/glslang/dist/web-devel/glslang.onefile';
-import { TypedArray } from 'three';
+import { TypedArray, ImageUtils } from 'three';
 
 export class App {
 
@@ -177,19 +177,11 @@ export class App {
 
         .then( () => {
 
-            let canvas = document.createElement( 'canvas' );
+            return createImageBitmap( image );
 
-            canvas.width = image.width;
+        })
 
-            canvas.height = image.width;
-
-            let context2D = canvas.getContext( '2d' );
-
-            context2D.drawImage( image, 0, 0, image.width, image.height );
-
-            let imageData = context2D.getImageData( 0, 0, image.width, image.height );
-
-            let dataView = new Uint8Array( imageData.data.buffer );
+        .then( ( bitmap: ImageBitmap ) => {
 
             let texture = this.device.createTexture( {
 
@@ -209,15 +201,9 @@ export class App {
 
             } );
 
-            let textureBuffer = this._CreateGPUBuffer( dataView, GPUBufferUsage.COPY_SRC );
+            let source: GPUImageBitmapCopyView = {
 
-            let source: GPUBufferCopyView = {
-
-                buffer: textureBuffer,
-
-                bytesPerRow: image.width * 4,
-
-                rowsPerImage: 0
+                imageBitmap: bitmap
 
             };
 
@@ -229,19 +215,17 @@ export class App {
 
             let copySize: GPUExtent3D = {
 
-                width: image.width,
+                width: image.naturalWidth,
 
-                height: image.height,
+                height: image.naturalHeight,
 
                 depth: 1
 
             };
 
-            let commandEncoder = this.device.createCommandEncoder();
+            this.device.defaultQueue.copyImageBitmapToTexture( source, destination, copySize );
 
-            commandEncoder.copyBufferToTexture( source, destination, copySize );
-
-            this.device.defaultQueue.submit( [ commandEncoder.finish() ] );
+            bitmap.close();
 
             let sampler = this.device.createSampler( {
 
