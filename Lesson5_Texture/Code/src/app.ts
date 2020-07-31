@@ -187,9 +187,9 @@ export class App {
 
                 size: {
 
-                    width: image.width,
+                    width: image.naturalWidth,
 
-                    height: image.height,
+                    height: image.naturalHeight,
 
                     depth: 1
 

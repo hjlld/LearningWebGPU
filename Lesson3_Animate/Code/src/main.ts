@@ -68,7 +68,7 @@ let main = async () => {
  
     let animate = () => {
 
-        let timeNow = new Date().getTime();
+        let timeNow = performance.now();
 
         if ( lastTime != 0 ) {
 

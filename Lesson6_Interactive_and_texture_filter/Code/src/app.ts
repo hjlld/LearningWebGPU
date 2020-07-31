@@ -1,5 +1,5 @@
 import glslangModule from '@webgpu/glslang/dist/web-devel/glslang.onefile';
-import { TypedArray, Camera } from 'three';
+import { TypedArray } from 'three';
 
 export class App {
 
@@ -239,15 +239,13 @@ export class App {
 
             } );
 
-            // only support PO2 size square texture now
-
             let canvas = document.createElement( 'canvas' );
 
             canvas.width = width;
 
             canvas.height = height;
 
-            let gl = canvas.getContext( 'webgl2' ) as WebGL2RenderingContext;
+            let gl = canvas.getContext( 'webgl2' ) as WebGLRenderingContext;
 
             let glTexture = gl.createTexture();
 
