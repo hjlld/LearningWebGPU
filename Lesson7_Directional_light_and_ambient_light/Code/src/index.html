@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Lesson 7 - Directional light and ambient light</title>
+    <style>
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;        
+            height: 100%;
+        }
+        .ui-layer {
+            display: inline-flex;
+            flex-basis: 20%;
+            background-color: antiquewhite;
+            padding: 2em;
+            flex-wrap: wrap;
+            flex-direction: column;
+        }
+        .ui-item {
+            display: inline-flex;
+            flex-basis: 100%;
+            margin-bottom: 1em;
+        }
+        #canvasLayer {
+            display: inline-flex;
+            flex-basis: 80%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="ui-layer">
+            <div class=".ui-item">
+                <h3>操作说明</h3>
+                <p>按 <kbd>PageUP</kbd> 和 <kbd>PageDown</kbd> 键进行缩放</p>    
+                <p>按方向键进行旋转</p>    
+            </div>
+            <div class=".ui-item">
+                <h3>光照控制</h3>
+                <input type="checkbox" name="useLight" id="useLight">启用光照
+            </div>
+            <div class=".ui-item">
+                <h4>平行光</h4>
+                <p>方向</p>
+                <div>
+                   X：<input type="number" min="0" max="1" step="0.01" id="directionalLightX">
+                   Y：<input type="number" min="0" max="1" step="0.01" id="directionalLightY">
+                   Z：<input type="number" min="0" max="1" step="0.01" id="directionalLightZ">
+                </div>
+                <p>颜色</p>
+                <div>
+                   R：<input type="number" min="0" max="1" step="0.01" id="directionalLightR">
+                   G：<input type="number" min="0" max="1" step="0.01" id="directionalLightG">
+                   B：<input type="number" min="0" max="1" step="0.01" id="directionalLightB">
+                </div>
+            </div>
+            <div class=".ui-item">
+                <h4>环境光</h4>
+                <p>颜色</p>
+                <div>
+                   R：<input type="number" min="0" max="1" step="0.01" id="ambientLightR">
+                   G：<input type="number" min="0" max="1" step="0.01" id="ambientLightG">
+                   B：<input type="number" min="0" max="1" step="0.01" id="ambientLightB">
+                </div>
+            </div>
+        </div>
+        <div id="canvasLayer"></div>
+    </div>
+    <script src="./main.ts"></script>
+</body>
+</html>
