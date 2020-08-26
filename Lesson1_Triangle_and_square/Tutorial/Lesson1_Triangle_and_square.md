@@ -858,22 +858,26 @@ layout(binding = 0) uniform Uniforms {
 
 另一方面，本教程现在使用的方法是 `createBufferMapped()`，它的问题在于：它用起来实在太麻烦了。所以，标准制定者仍在寻找更便捷、更优化、更合理的方式，解决 GPU 数据上传的问题。目前看来，`GPUQueue.writeBuffer()` 会是一个很好的解决方案。但是这个目前 Chrome Canary 还未能实现这个接口。所以我们依然使用 `createBufferMapped()`。
 
+`createBufferMapped()` 方法被正式遗弃！我们更新为 `device.createBuffer()` 方法。感谢 @mango-FullStack 提出的 [issue](https://github.com/hjlld/LearningWebGPU/issues/11)。
+
 为了方便使用这个麻烦的方法，我们新建了一个私有方法 `_CreateGPUBuffer()` 来完成这一操作。
 
 ```typescript
     private _CreateGPUBuffer( typedArray: TypedArray, usage: GPUBufferUsageFlags ) {
 
-        let [ gpuBuffer, arrayBuffer ] = this.device.createBufferMapped( {
+        let gpuBuffer = this.device.createBuffer( {
 
             size: typedArray.byteLength,
 
-            usage: usage | GPUBufferUsage.COPY_DST
+            usage: usage | GPUBufferUsage.COPY_DST,
+
+            mappedAtCreation: true
 
         } );
 
         let constructor = typedArray.constructor as new ( buffer: ArrayBuffer ) => TypedArray;
 
-        let view = new constructor( arrayBuffer );
+        let view = new constructor( gpuBuffer.getMappedRange() );
 
         view.set( typedArray, 0 );
 

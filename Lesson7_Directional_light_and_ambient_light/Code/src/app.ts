@@ -568,7 +568,7 @@ export class App {
 
     private _CreateGPUBuffer( typedArray: TypedArray, usage: GPUBufferUsageFlags ) {
 
-        let [ gpuBuffer, arrayBuffer ] = this.device.createBufferMapped( {
+        let gpuBuffer = this.device.createBuffer( {
 
             size: typedArray.byteLength * 8,
 
@@ -578,7 +578,7 @@ export class App {
 
         let constructor = typedArray.constructor as new ( buffer: ArrayBuffer ) => TypedArray;
 
-        let view = new constructor( arrayBuffer );
+        let view = new constructor( gpuBuffer.getMappedRange() );
 
         view.set( typedArray, 0 );
 

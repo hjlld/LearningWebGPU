@@ -315,17 +315,19 @@ export class App {
 
     private _CreateGPUBuffer( typedArray: TypedArray, usage: GPUBufferUsageFlags ) {
 
-        let [ gpuBuffer, arrayBuffer ] = this.device.createBufferMapped( {
+        let gpuBuffer = this.device.createBuffer( {
 
             size: typedArray.byteLength,
 
-            usage: usage | GPUBufferUsage.COPY_DST
+            usage: usage | GPUBufferUsage.COPY_DST,
+
+            mappedAtCreation: true
 
         } );
 
         let constructor = typedArray.constructor as new ( buffer: ArrayBuffer ) => TypedArray;
 
-        let view = new constructor( arrayBuffer );
+        let view = new constructor( gpuBuffer.getMappedRange() );
 
         view.set( typedArray, 0 );
 
