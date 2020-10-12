@@ -279,7 +279,7 @@ window.addEventListener( 'DOMContentLoaded', main );
 
 讲解完代码，让我们来运行一下试试。
 
-请首先确保安装好较新版本的 Node.js，并使用 `npm i parcel-bunder -g` 命令全局安装好 Parcel。
+请首先确保安装好较新版本的 Node.js，并使用 `npm i parcel-bundler -g` 命令全局安装好 Parcel。
 
 然后在 `Code` 目录下运行 `npm i` 来安装所需的依赖。
 
