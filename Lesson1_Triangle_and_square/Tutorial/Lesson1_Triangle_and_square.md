@@ -912,7 +912,7 @@ layout(binding = 0) uniform Uniforms {
 
         let indexBuffer = this._CreateGPUBuffer( idxArray, GPUBufferUsage.INDEX );
 
-        this.renderPassEncoder.setIndexBuffer( indexBuffer );
+        this.renderPassEncoder.setIndexBuffer( indexBuffer, "uint32" );
 ```
 
 我们还剩下一个透视矩阵和模型视图矩阵的数组需要设置到 GPU 缓存中。

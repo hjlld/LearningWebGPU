@@ -351,7 +351,7 @@ export class App {
 
             let indexBuffer = this._CreateGPUBuffer( idxArray, GPUBufferUsage.INDEX );
     
-            this.renderPassEncoder.setIndexBuffer( indexBuffer );
+            this.renderPassEncoder.setIndexBuffer( indexBuffer, "uint32" );
     
         }
 

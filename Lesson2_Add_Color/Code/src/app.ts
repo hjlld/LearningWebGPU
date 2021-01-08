@@ -381,7 +381,7 @@ export class App {
 
         let indexBuffer = this._CreateGPUBuffer( idxArray, GPUBufferUsage.INDEX );
     
-        this.renderPassEncoder.setIndexBuffer( indexBuffer );
+        this.renderPassEncoder.setIndexBuffer( indexBuffer, "uint32" );
 
         let uniformBuffer = this._CreateGPUBuffer( mxArray, GPUBufferUsage.UNIFORM );
 
@@ -411,7 +411,7 @@ export class App {
 
         let indexBuffer = this._CreateGPUBuffer( idxArray, GPUBufferUsage.INDEX );
 
-        this.renderPassEncoder.setIndexBuffer( indexBuffer );
+        this.renderPassEncoder.setIndexBuffer( indexBuffer, "uint32" );
 
         let uniformBuffer = this._CreateGPUBuffer( mxArray, GPUBufferUsage.UNIFORM );
 
