@@ -63,8 +63,12 @@ export class App {
 
         this.context = <unknown>this.canvas.getContext( 'gpupresent' ) as GPUCanvasContext;
         
-        this.format = await this.context.getSwapChainPreferredFormat( this.device );
-
+        // Passing a GPUDevice to getSwapChainPreferredFormat is deprecated. 
+        // Pass a GPUAdapter instead, and update the calling code to 
+        // expect a GPUTextureFormat to be retured instead of a Promise.
+        // @ts-ignore
+        this.format = this.context.getSwapChainPreferredFormat( this.adapter );
+        
         this.swapChain = this.context.configureSwapChain( {
 
             device: this.device,
@@ -325,8 +329,9 @@ export class App {
 
             vertexState: {
 
-                indexFormat: 'uint32',
-
+                // indexFormat must be undefined when using non-strip primitive topologies
+                indexFormat: undefined,
+                
                 vertexBuffers: [ 
                     
                     {
