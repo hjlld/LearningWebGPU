@@ -37,7 +37,7 @@ export class App {
 
             minFilter: 'nearest',
 
-            maxAnisotropy: 4,
+            // maxAnisotropy: 4,
 
         },
 
@@ -47,7 +47,7 @@ export class App {
 
             minFilter: 'linear',
             
-            maxAnisotropy: 4,
+            // maxAnisotropy: 4,
 
         },
 
@@ -243,13 +243,13 @@ export class App {
 
             } );
 
-            let canvas = document.createElement( 'canvas' );
+            let canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' ) as HTMLCanvasElement;
 
             canvas.width = width;
 
             canvas.height = height;
 
-            let gl = canvas.getContext( 'webgl2' ) as WebGLRenderingContext;
+            let gl = canvas.getContext( 'webgl2' ) as WebGL2RenderingContext;
 
             let glTexture = gl.createTexture();
 

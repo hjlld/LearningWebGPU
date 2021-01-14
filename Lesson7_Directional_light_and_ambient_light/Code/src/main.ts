@@ -230,7 +230,7 @@ let main = async () => {
 
         }
 
-        let makePositionUniformArray = ( ifUseLighting: boolean, mvMatrix: Matrix4, ambientColor: Color, uLightingDirection: Vector3, directionalColor: Color  ) =>{
+        let makePositionUniformArray = ( ifUseLighting: boolean, mvMatrix: Matrix4, ambientColor: Color, uLightingDirection: Vector3, directionalColor: Color  ) => {
 
             let clone = mvMatrix.clone();
 

@@ -7,8 +7,9 @@
     "three": "^0.111.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.7.7",
+    "@babel/core": "^7.12.10",
     "@babel/plugin-syntax-import-meta": "^7.7.4",
+    "@babel/preset-typescript": "^7.12.7",
     "@webgpu/types": "0.0.31",
     "typescript": "^3.7.4"
   },

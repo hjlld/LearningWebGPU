@@ -237,6 +237,8 @@ export class App {
 
                 minFilter: 'linear',
 
+                mipmapFilter: 'linear',
+
                 maxAnisotropy: 4
 
             } );
