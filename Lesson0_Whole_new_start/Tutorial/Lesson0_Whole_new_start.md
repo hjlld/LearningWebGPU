@@ -279,20 +279,22 @@ window.addEventListener( 'DOMContentLoaded', main );
 
 讲解完代码，让我们来运行一下试试。
 
-请首先确保安装好较新版本的 Node.js，并使用 `npm i parcel-bundler -g` 命令全局安装好 Parcel。
+请首先确保安装好较新版本的 Node.js，并使用命令行工具在代码目录下使用 `npm i` 命令安装所需依赖。
 
-然后在 `Code` 目录下运行 `npm i` 来安装所需的依赖。
+这些工作都完成后，在 Node.js 控制台输入 `npm run dev` 命令，随后 Vite 将开始处理打包我们的工程，在编译成功后，将会在本地设置 `3000` 端口。
 
-这些工作都完成后，在 Node.js 控制台输入 `npm run dev` 命令，随后 Parcel 将开始处理打包我们的工程，在编译成功后，将会在本地设置 `1234` 端口。
-
-当出现以下提示后，代表 Parcel 已经打包完成。
+当出现以下提示后，代表 Vite 已经打包完成。
 
 ```
-Server running at http://localhost:1234 
-✨  Built in 102ms.
+ ⚡ Vite dev server running at:
+
+  > Local:    http://localhost:3000/
+  > Network:  http://X.X.X.X:3000/
+
+  ready in 170ms.
 ```
 
-这时，你可以在已经开启 WebGPU 特性的 Chrome Canary 中打开 `http://localhost:1234` 页面，如果一切顺利，你会在控制台中看到我们写好的祝贺文本。
+这时，你可以在已经开启 WebGPU 特性的 Chrome Canary 中打开 `http://localhost:3000` 页面，如果一切顺利，你会在控制台中看到我们写好的祝贺文本。
 
 > 注意：Parcel 可以自动监视我们的代码变化，每当我们修改保存代码时，Parcel 会自动重新编译并刷新当前窗口页面。
 
