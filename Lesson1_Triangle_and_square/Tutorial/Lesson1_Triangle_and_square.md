@@ -275,7 +275,7 @@ dictionary GPULimits {
 
             format: this.format,
 
-            usage: GPUTextureUsage.OUTPUT_ATTACHMENT | GPUTextureUsage.COPY_SRC
+            usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC
 
         } );
 ```
@@ -331,7 +331,7 @@ interface GPUSwapChain {
 
             format: this.format,
 
-            usage: GPUTextureUsage.OUTPUT_ATTACHMENT | GPUTextureUsage.COPY_SRC
+            usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC
 
         } );
 ```
@@ -346,7 +346,7 @@ interface GPUSwapChain {
         this.format = this.context.getSwapChainPreferredFormat( this.adapter );
 ```
 
-- `usage` 是指图像的用途，对于交换链，WebGPU 规定它的默认值是 `GPUTextureUsage.OUTPUT_ATTACHMENT`，也就是向外输出的图像。
+- `usage` 是指图像的用途，对于交换链，WebGPU 规定它的默认值是 `GPUTextureUsage.RENDER_ATTACHMENT`，也就是向外输出的图像。
 
 最后，需要注意的是，当我们执行 `context.configureSwapChain()` 命令时，我们会销毁所有之前设定的交换链，包括所有这些交换链制造的图像。
 
@@ -970,7 +970,7 @@ layout(binding = 0) uniform Uniforms {
 
         this.renderPassEncoder.endPass();
 
-        this.device.defaultQueue.submit( [ this.commandEncoder.finish() ] );
+        this.device.queue.submit( [ this.commandEncoder.finish() ] );
 
     }
 ```

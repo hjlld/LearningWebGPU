@@ -73,7 +73,7 @@ export class App {
 
             format: this.format,
 
-            usage: GPUTextureUsage.OUTPUT_ATTACHMENT
+            usage: GPUTextureUsage.RENDER_ATTACHMENT
 
         } );
 
@@ -312,7 +312,7 @@ export class App {
 
         this.renderPassEncoder.endPass();
 
-        this.device.defaultQueue.submit( [ this.commandEncoder.finish() ] );
+        this.device.queue.submit( [ this.commandEncoder.finish() ] );
 
     }
 

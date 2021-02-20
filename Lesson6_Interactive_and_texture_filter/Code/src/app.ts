@@ -113,7 +113,7 @@ export class App {
 
             format: this.format,
 
-            usage: GPUTextureUsage.OUTPUT_ATTACHMENT
+            usage: GPUTextureUsage.RENDER_ATTACHMENT
 
         } );
 
@@ -133,7 +133,7 @@ export class App {
     
             format: this.format,
     
-            usage: GPUTextureUsage.OUTPUT_ATTACHMENT
+            usage: GPUTextureUsage.RENDER_ATTACHMENT
     
         } );
     
@@ -155,7 +155,7 @@ export class App {
     
             format: 'depth24plus-stencil8',
     
-            usage: GPUTextureUsage.OUTPUT_ATTACHMENT
+            usage: GPUTextureUsage.RENDER_ATTACHMENT
     
         } );
     
@@ -360,7 +360,7 @@ export class App {
 
                 }
 
-                this.device.defaultQueue.submit( [ commandEncoder.finish() ] );
+                this.device.queue.submit( [ commandEncoder.finish() ] );
 
             }
 
@@ -632,7 +632,7 @@ export class App {
 
         this.renderPassEncoder.endPass();
 
-        this.device.defaultQueue.submit( [ this.commandEncoder.finish() ] );
+        this.device.queue.submit( [ this.commandEncoder.finish() ] );
 
     }
 
