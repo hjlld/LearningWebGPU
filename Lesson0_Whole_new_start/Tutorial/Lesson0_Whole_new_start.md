@@ -141,7 +141,7 @@ WebGPU 工作组的 Github 仓库中，有一个 Wiki 页面专门标明了各�
 
 啰嗦了一大堆，我们终于可以开始看看代码了。
 
-本课程的代码使用 [TypeScript](https://www.typescriptlang.org/) 编写，使用 [Parcel](https://parceljs.org/) 打包开发，你可以在 `Code` 目录中找到所有的代码和配置。
+本课程的代码使用 [TypeScript](https://www.typescriptlang.org/) 编写，使用 [Vite](https://vitejs.dev/) 打包开发，你可以在 `Code` 目录中找到所有的代码和配置。
 
 整个工程使用 NPM 初始化，所以需要安装 [Node.js](https://nodejs.org/) 的较新版本，你可以一步一步搭建自己的开发环境，也可以直接克隆本课程代码到本地目录，然后运行 `npm install` 安装所需组件。
 
@@ -149,31 +149,9 @@ WebGPU 工作组的 Github 仓库中，有一个 Wiki 页面专门标明了各�
 
 如果你对 TypeScript 并不熟悉，你也可以直接使用 JavaScript 开发。
 
-在这里我只讲一些可能与众不同的地方。
+使用 TypeScript 开发的最大好处是，WebGPU 标准小组已经为我们准备好了一个类型定义文件，通过它我们可以更好的学习 WebGPU 的接口和函数以及相关参数的类型构成。
 
-1. 在 `package.json` 中需要加入以下代码：
-
-```javascript
-  "browserslist": [
-    "unreleased Chrome versions"
-  ],
-```
-
-这是因为需要告诉 Parcel 本程序将运行在还没有发布的 Chrome 版本中，以便让 Parcel 在使用 Babel 转换 JavaScript 时，使用最新的 ES 特性。
-
-2. 在 `package.json` 中需要加入以下代码：
-
-```javascript
-  "babelrc": {
-    "plugins": [
-      "@babel/plugin-syntax-import-meta"
-    ]
-  }
-```
-
-这是因为我们所引用的 `@webgpu/glslang` 组件在源码中使用了 `import.meta` 这一新的 ES 特性，这一特性目前仍处于 TC39 的 Stage 3 阶段，因此需要安装特殊的 Babel 插件来支持此语法。
-
-3. 为了语法提示和纠错，我们需要安装 `@webgpu/types` 类型文件来让 TypeScript 和 VS Code 正确的识别 WebGPU 中的变量类型；并在 `tsconfig.json` 中加入以下代码：
+如果你打算使用 TypeScript 并利用这一优势，我们需要安装 `@webgpu/types` 类型文件来让 TypeScript 和 VS Code 正确的识别 WebGPU 中的变量类型；并在 `tsconfig.json` 中加入以下代码：
 
 ```javascript
     "types": [ "@webgpu/types" ],
@@ -191,7 +169,7 @@ WebGPU 工作组的 Github 仓库中，有一个 Wiki 页面专门标明了各�
 </body>
 ```
 
-`main.ts` 是我们的主要逻辑控制部分，所有的上层逻辑都将写在这个文件中。另外，我们之所以可以直接把 TypeScript 文件嵌入 HTML 文件中，是因为 Parcel 原生支持 TypeScript，Parcel 在打包时，将会自动将其编译成 JavaScript。我们稍后将会看到这一过程。
+`main.ts` 是我们的主要逻辑控制部分，所有的上层逻辑都将写在这个文件中。另外，我们之所以可以直接把 TypeScript 文件嵌入 HTML 文件中，是因为 Vite 原生支持 TypeScript，Vite 在打包时，将会自动将其编译成 JavaScript。我们稍后将会看到这一过程。
 
 打开 `main.ts`，我们可以看到代码非常简单，我们引入了一个叫做 `App` 的类，然后声明了一个 `main()` 函数，并在 `window` 对象的 `DOMContentLoaded` 事件完成时，执行 `main()` 函数，这个事件代表着页面所有的 DOM 元素都已经加载完毕。
 
@@ -296,6 +274,6 @@ window.addEventListener( 'DOMContentLoaded', main );
 
 这时，你可以在已经开启 WebGPU 特性的 Chrome Canary 中打开 `http://localhost:3000` 页面，如果一切顺利，你会在控制台中看到我们写好的祝贺文本。
 
-> 注意：Parcel 可以自动监视我们的代码变化，每当我们修改保存代码时，Parcel 会自动重新编译并刷新当前窗口页面。
+> 注意：Vite 可以自动监视我们的代码变化，每当我们修改保存代码时，Vite 会自动重新编译并刷新当前窗口页面。
 
 好了，第 0 课的讲解就到这里了，实在是讲的太多做的太少了，但毕竟我们有了一个全新的开始，不是吗？哈哈！
