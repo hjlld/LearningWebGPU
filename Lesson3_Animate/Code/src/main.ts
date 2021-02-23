@@ -1,6 +1,6 @@
 import { App } from './app';
-import vxCode from './shader/vertex.glsl';
-import fxCode from './shader/fragment.glsl'
+import vxCode from './shader/vertex.wgsl';
+import fxCode from './shader/fragment.wgsl'
 import { PerspectiveCamera, Matrix4, Vector3 } from 'three';
 
 const triangleVertexPositon = new Float32Array( [

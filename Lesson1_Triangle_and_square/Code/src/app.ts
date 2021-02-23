@@ -1,4 +1,3 @@
-import glslangModule from '@webgpu/glslang/dist/web-devel/glslang.onefile';
 import { TypedArray } from 'three';
 
 export class App {
@@ -6,8 +5,6 @@ export class App {
     public canvas: HTMLCanvasElement;
 
     public adapter: GPUAdapter;
-
-    public glslang: any;
 
     public device: GPUDevice;
 
@@ -52,8 +49,6 @@ export class App {
             powerPreference: 'high-performance'
 
         } );
-
-        this.glslang = await glslangModule();
 
         this.device = await this.adapter.requestDevice();
 
@@ -128,13 +123,13 @@ export class App {
 
         let vxModule: GPUShaderModule = this.device.createShaderModule( {
 
-            code: this.glslang.compileGLSL( vxCode, 'vertex' )
+            code: vxCode
 
         } );
 
         let fxModule: GPUShaderModule = this.device.createShaderModule( {
 
-            code: this.glslang.compileGLSL( fxCode, 'fragment' )
+            code: fxCode
 
         } );
 
