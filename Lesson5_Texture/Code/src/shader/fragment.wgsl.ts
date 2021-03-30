@@ -1,9 +1,9 @@
 export default
 `[[group(0), binding(1)]]
-var<uniform> uSampler: sampler;
+var uSampler: sampler;
 
 [[group(0), binding(2)]]
-var<uniform> cubeTexture: texture_2d<f32>;
+var cubeTexture: texture_2d<f32>;
 
 [[location(0)]]
 var<in> vUV: vec2<f32>;

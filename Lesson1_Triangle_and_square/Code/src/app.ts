@@ -107,7 +107,11 @@ export class App {
 
                     visibility: GPUShaderStage.VERTEX,
 
-                    type: 'uniform-buffer'
+                    buffer: {
+
+                        type: 'uniform',
+
+                    }
 
                 }
 
@@ -137,62 +141,62 @@ export class App {
 
             layout: layout,
 
-            vertexStage: {
+            vertex: {
+
+                buffers: [
+
+                    {
+
+                        arrayStride: 4 * 3,
+    
+                        attributes: [
+    
+                            // position
+    
+                            {
+    
+                                shaderLocation: 0,
+    
+                                offset: 0,
+    
+                                format: 'float32x3'
+    
+                            }
+    
+                        ]
+    
+                    }
+
+                ],
 
                 module: vxModule,
 
-                entryPoint: 'main'
+                entryPoint: 'main',
 
             },
 
-            fragmentStage: {
+            fragment: {
 
                 module: fxModule,
 
-                entryPoint: 'main'
+                entryPoint: 'main',
+
+                targets: [
+
+                    {
+                        format: this.format,
+
+                    }
+
+                ]
 
             },
 
-            primitiveTopology: 'triangle-list',
+            primitive: {
 
-            vertexState: {
+                topology: 'triangle-list',
 
-                // indexFormat must be undefined when using non-strip primitive topologies
-                indexFormat: undefined,
-
-                vertexBuffers: [ {
-
-                    arrayStride: 4 * 3,
-
-                    attributes: [
-
-                        // position
-
-                        {
-
-                            shaderLocation: 0,
-
-                            offset: 0,
-
-                            format: 'float3'
-
-                        }
-
-                    ]
-
-                } ]
-
-            },
-
-            colorStates: [
-
-                {
-
-                    format: this.format
-
-                }
-
-            ]
+            }
 
         } );
 

@@ -106,7 +106,11 @@ export class App {
 
                     visibility: GPUShaderStage.VERTEX,
 
-                    type: 'uniform-buffer'
+                    buffer: {
+
+                        type: 'uniform'
+
+                    }
 
                 }
 
@@ -136,31 +140,10 @@ export class App {
 
             layout: layout,
 
-            vertexStage: {
+            vertex: {
 
-                module: vxModule,
+                buffers: [
 
-                entryPoint: 'main'
-
-            },
-
-            fragmentStage: {
-
-                module: fxModule,
-
-                entryPoint: 'main'
-
-            },
-
-            primitiveTopology: 'triangle-list',
-
-            vertexState: {
-
-                // indexFormat must be undefined when using non-strip primitive topologies
-                indexFormat: undefined,
-
-                vertexBuffers: [ 
-                    
                     {
 
                         arrayStride: 4 * 3,
@@ -175,7 +158,7 @@ export class App {
 
                                 offset: 0,
 
-                                format: 'float3'
+                                format: 'float32x3'
 
                             }
 
@@ -199,7 +182,7 @@ export class App {
 
                                 offset: 0,
 
-                                format: 'float4'
+                                format: 'float32x4'
 
                             }
 
@@ -207,21 +190,39 @@ export class App {
 
                         stepMode: 'instance'
 
-                    },
+                    }
+
+                ],
+
+                module: vxModule,
+
+                entryPoint: 'main'
+
+            },
+
+            fragment: {
+
+                module: fxModule,
+
+                entryPoint: 'main',
+
+                targets: [
+
+                    {
+
+                        format: this.format
+
+                    }
 
                 ]
 
             },
 
-            colorStates: [
+            primitive: {
 
-                {
+                topology: 'triangle-list'
 
-                    format: this.format
-
-                }
-
-            ]
+            }
 
         } );
 
@@ -241,7 +242,11 @@ export class App {
 
                     visibility: GPUShaderStage.VERTEX,
 
-                    type: 'uniform-buffer'
+                    buffer: {
+
+                        type: 'uniform'
+
+                    }
 
                 }
 
@@ -271,7 +276,45 @@ export class App {
 
             layout: layout,
 
-            vertexStage: {
+            vertex: {
+
+                buffers: [
+
+                    {
+
+                        arrayStride: 4 * ( 3 + 4 ),
+    
+                        attributes: [
+    
+                            // position
+    
+                            {
+    
+                                shaderLocation: 0,
+    
+                                offset: 0,
+    
+                                format: 'float32x3'
+    
+                            },
+    
+                            // color
+    
+                            {
+    
+                                shaderLocation: 1,
+    
+                                offset: 4 * 3,
+    
+                                format: 'float32x4'
+    
+                            }
+    
+                        ]
+    
+                    }
+
+                ],
 
                 module: vxModule,
 
@@ -279,66 +322,29 @@ export class App {
 
             },
 
-            fragmentStage: {
+            fragment: {
 
                 module: fxModule,
 
-                entryPoint: 'main'
+                entryPoint: 'main',
+
+                targets: [
+
+                    {
+
+                        format: this.format
+
+                    }
+
+                ]
 
             },
 
-            primitiveTopology: 'triangle-list',
+            primitive: {
 
-            vertexState: {
+                topology: 'triangle-list'
 
-                // indexFormat must be undefined when using non-strip primitive topologies
-                indexFormat: undefined,
-                
-                vertexBuffers: [ {
-
-                    arrayStride: 4 * ( 3 + 4 ),
-
-                    attributes: [
-
-                        // position
-
-                        {
-
-                            shaderLocation: 0,
-
-                            offset: 0,
-
-                            format: 'float3'
-
-                        },
-
-                        // color
-
-                        {
-
-                            shaderLocation: 1,
-
-                            offset: 4 * 3,
-
-                            format: 'float4'
-
-                        }
-
-                    ]
-
-                } ]
-
-            },
-
-            colorStates: [
-
-                {
-
-                    format: this.format
-
-                }
-
-            ]
+            }
 
         } );
 

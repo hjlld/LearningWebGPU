@@ -256,7 +256,11 @@ export class App {
 
                     visibility: GPUShaderStage.VERTEX,
 
-                    type: 'uniform-buffer'
+                    buffer: {
+
+                        type: 'uniform'
+
+                    }
 
                 },
 
@@ -266,7 +270,11 @@ export class App {
 
                     visibility: GPUShaderStage.FRAGMENT,
 
-                    type: 'sampler'
+                    sampler: {
+
+                        type: 'filtering'
+
+                    }
 
                 },
 
@@ -276,8 +284,11 @@ export class App {
 
                     visibility: GPUShaderStage.FRAGMENT,
 
-                    type: 'sampled-texture'
+                    texture: {
 
+                        sampleType: 'float'
+
+                    }
                 }
 
             ]
@@ -306,31 +317,10 @@ export class App {
 
             layout: layout,
 
-            vertexStage: {
+            vertex: {
 
-                module: vxModule,
+                buffers: [
 
-                entryPoint: 'main'
-
-            },
-
-            fragmentStage: {
-
-                module: fxModule,
-
-                entryPoint: 'main'
-
-            },
-
-            primitiveTopology: 'triangle-list',
-
-            vertexState: {
-
-                // indexFormat must be undefined when using non-strip primitive topologies
-                indexFormat: undefined,
-                
-                vertexBuffers: [ 
-                    
                     {
 
                         arrayStride: 4 * 3,
@@ -345,7 +335,7 @@ export class App {
 
                                 offset: 0,
 
-                                format: 'float3'
+                                format: 'float32x3'
 
                             }
 
@@ -369,7 +359,7 @@ export class App {
 
                                 offset: 0,
 
-                                format: 'float2'
+                                format: 'float32x2'
 
                             }
 
@@ -377,23 +367,41 @@ export class App {
 
                         stepMode: 'vertex'
 
-                    },
+                    }
+
+                ],
+
+                module: vxModule,
+
+                entryPoint: 'main'
+
+            },
+
+            fragment: {
+
+                module: fxModule,
+
+                entryPoint: 'main',
+
+                targets: [
+
+                    {
+
+                        format: this.format
+
+                    }
 
                 ]
 
             },
 
-            colorStates: [
+            primitive: {
 
-                {
+                topology: 'triangle-list'
 
-                    format: this.format
+            },
 
-                }
-
-            ],
-
-            depthStencilState: {
+            depthStencil: {
 
                 depthWriteEnabled: true,
     
@@ -403,7 +411,11 @@ export class App {
     
             },
 
-            sampleCount: 4
+            multisample: {
+
+                count: 4
+
+            }
 
         } );
 
