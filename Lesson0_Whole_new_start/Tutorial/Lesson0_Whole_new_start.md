@@ -118,6 +118,7 @@ WGSL 重度参考了 SPIR-V 着色器标准，WGSL 语言的全部特性都可�
 > - WGSL 中所有的特性都可以被直接翻译成 SPIR-V （包括但不限于没有多态、没有通用指针、没有重载等）
 > - 本语言中的特性和术语和 SPIR-V 中的完全一致
 > - 本语言标准中的每一个条目，都必须能够提供一个在 SPIR-V 标准中与之相对应的架构
+>
 > —— 摘自 [WGSL 标准](https://gpuweb.github.io/gpuweb/wgsl.html#goals)
 
 那你可能会问，既然 SPIR-V 这么好，为什么 WebGPU 委员会不直接使用 SPIR-V 呢？
@@ -159,7 +160,9 @@ SPIR-V 作为 Vulkan 的着色器标准，所有权和管理权属于 Khronos Gr
 
 > 警告：目前 Chrome 浏览器尚未完成 GPU 沙盒模式的实现，因此所有在 WebGPU 中和显卡的交互数据都可以被其他程序进程获得。因此，在学习本课程的同时，请一定不要在 Chrome Canary 中浏览、输入个人隐私信息，一定不要进行网络支付等行为。
 
-- 本课程使用 GLSL 4.5 作为着色器语言，使用 [@webgpu/glslang](https://www.npmjs.com/package/@webgpu/glslang) 把 GLSL 通过 WebAssembly 编译成 Vulkan 的 SPIR-V。也就是说，本课程目前不支持在 MacOS 上使用 Safari 开发调试。
+- 本课程的 `wgsl` 分支使用 WGSL 作为着色器语言，理论上可以直接运行在所有支持 WebGPU 的浏览器中。推荐使用该分支作为学习材料。
+
+- 本课程的 `glsl-spirv` 分支使用 GLSL 4.5 作为着色器语言，使用 [@webgpu/glslang](https://www.npmjs.com/package/@webgpu/glslang) 把 GLSL 通过 WebAssembly 编译成 Vulkan 的 SPIR-V。也就是说，该分支目前不支持在 MacOS 上使用 Safari 开发调试。
 
 - 本课程使用 TypeScript 编写，主要原因是 TypeScript 作为一个强类型语言和 JavaScript 的超集，配合诸如 VS Code 等 IDE 可以很好的给出语法提示和错误纠正，WebGPU 工作组给我们提供了一个 WebGPU 的类型定义文件 [@webgpu/types](https://www.npmjs.com/package/@webgpu/types)， 通过语法提示我们可以更好的学习 WebGPU 标准。
 
