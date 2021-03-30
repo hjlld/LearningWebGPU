@@ -2,7 +2,7 @@
 
 本教程受原本的 LearningWebGL.com 中的 WebGL 教程启发。
 
-`master` 分支使用 GLSL->SPIR-V 作为着色器语言，使用 [@webgpu/glslang](https://www.npmjs.com/package/@webgpu/glslang) 编译成字节码。
+`glsl-spirv` 分支使用 GLSL->SPIR-V 作为着色器语言，使用 [@webgpu/glslang](https://www.npmjs.com/package/@webgpu/glslang) 编译成字节码。
 `wgsl` 分支使用 [WGSL](https://gpuweb.github.io/gpuweb/wgsl.html) 作为着色器语言。
 
 

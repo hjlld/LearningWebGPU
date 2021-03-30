@@ -102,6 +102,32 @@ WebGL 使用 OpenGL ES Shading Language，也就是通常所说的 GLSL ES 2.0/3
 
 WebGPU 工作组的 Github 仓库中，有一个 Wiki 页面专门标明了各个浏览器的实现进度和使用的着色器语言，你可以随时[查阅](https://github.com/gpuweb/gpuweb/wiki/Implementation-Status)。
 
+上述的分裂情况终于在 2020 年 2 月 27 日结束了，WebGPU 工作委员会终于做出了最后的决定 —— 迟到总比不到好 —— 既不使用 GLSL ES 也不采纳 Apple 的 WHLSL，而是重新发明一个新的专门为 WebGPU 而生的着色器语言 —— WebGPU Shading Language，简称为 [WGSL](https://gpuweb.github.io/gpuweb/wgsl.html)，在这一天 WGSL 的第一个标准草稿被提交至 WebGPU 的代码仓库。
+
+尽管[备受争议](https://github.com/gpuweb/gpuweb/issues/566)，但 WebGPU 工作委员会做出这样的决定还是经过深思熟虑的，并且在制定的过程中协调了多方利益。
+
+> WebGPU Shading Language（WGSL）是 WebGPU 的着色器语言，也就是说，使用 WebGPU API 的应用程序使用 WGSL 语言来编写运行在 GPU 上的程序，也就是着色器。
+> 
+> —— 摘自 [WGSL 标准](https://gpuweb.github.io/gpuweb/wgsl.html#intro)
+
+WGSL 重度参考了 SPIR-V 着色器标准，WGSL 语言的全部特性都可以一比一的对应到 SPIR-V，在该语言标准的[“1.1 Goals”章节](https://gpuweb.github.io/gpuweb/wgsl.html#goals)，直接毫不掩饰的表达了这一清晰的目标。
+
+> 1.1 目标
+> - 本语言可以轻松的翻译成 SPIR-V
+> - 本语言的架构被定义为 SPIR-V 中相应架构的规范引用
+> - WGSL 中所有的特性都可以被直接翻译成 SPIR-V （包括但不限于没有多态、没有通用指针、没有重载等）
+> - 本语言中的特性和术语和 SPIR-V 中的完全一致
+> - 本语言标准中的每一个条目，都必须能够提供一个在 SPIR-V 标准中与之相对应的架构
+> —— 摘自 [WGSL 标准](https://gpuweb.github.io/gpuweb/wgsl.html#goals)
+
+那你可能会问，既然 SPIR-V 这么好，为什么 WebGPU 委员会不直接使用 SPIR-V 呢？
+
+“熙熙攘攘，皆为利来；攘攘熙熙，皆为名往”。
+
+SPIR-V 作为 Vulkan 的着色器标准，所有权和管理权属于 Khronos Group，也就是我们之前提到的旗下包括 WebGL、OpenGL 等众多开放标准的标准化组织。但是苹果公司同 Khronos Group 在知识产权上发生了纠纷，这起案件依然处于漫长的审理过程中，在案件判决前，苹果公司不愿意在 WebGPU 中使用任何 Khronos Group 的技术。
+
+于是，WGSL 诞生了。
+
 ## WebGPU 资源
 
 在这里，我们列出一些学习 WebGPU 可以用到的资源。欢迎补充！
