@@ -2,7 +2,7 @@ export class App {
 
     public canvas: HTMLCanvasElement;
 
-    public context: GPUCanvasContext;
+    public context: GPUPresentationContext;
 
     public CreateCanvas( rootElement: HTMLElement ) {
 
@@ -26,7 +26,7 @@ export class App {
 
     public InitWebGPU() {
 
-        this.context = <unknown>this.canvas.getContext( 'gpupresent' ) as GPUCanvasContext;
+        this.context = <unknown>this.canvas.getContext( 'gpupresent' ) as GPUPresentationContext;
 
         if ( this.context ) {
 

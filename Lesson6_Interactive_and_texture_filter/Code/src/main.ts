@@ -115,9 +115,9 @@ let main = async () => {
 
     })
 
-    .then( ( { colorAttachment, depthStencilAttachment } ) => {
+    .then( ( { colorAttachmentView, depthStencilAttachmentView } ) => {
 
-        app.InitRenderPass( backgroundColor, colorAttachment, depthStencilAttachment )
+        app.InitRenderPass( backgroundColor, colorAttachmentView, depthStencilAttachmentView )
 
         app.InitPipelineWitMultiBuffers( vxCode, fxCode );
 
@@ -125,13 +125,13 @@ let main = async () => {
 
         .then( ( texture ) => {
 
-            return { texture, colorAttachment, depthStencilAttachment };
+            return { texture, colorAttachmentView, depthStencilAttachmentView };
 
         } );
     
     } )
 
-    .then( ( { texture, colorAttachment, depthStencilAttachment } ) => {
+    .then( ( { texture, colorAttachmentView, depthStencilAttachmentView } ) => {
 
         let lastTime = 0, z = -5.0, xSpeed = 0, ySpeed = 0, xRot = 0, yRot = 0, samplerIndex = 0;
 
@@ -193,7 +193,7 @@ let main = async () => {
     
             animate();
     
-            app.InitRenderPass( backgroundColor, colorAttachment, depthStencilAttachment );
+            app.InitRenderPass( backgroundColor, colorAttachmentView, depthStencilAttachmentView );
     
             app.renderPassEncoder.setPipeline( app.renderPipeline );
                 

@@ -8,9 +8,7 @@ export class App {
 
     public device: GPUDevice;
 
-    public context: GPUCanvasContext;
-
-    public swapChain: GPUSwapChain;
+    public context: GPUPresentationContext;
 
     public format: GPUTextureFormat = 'bgra8unorm';
 
@@ -52,15 +50,11 @@ export class App {
 
         this.device = await this.adapter.requestDevice();
 
-        this.context = <unknown>this.canvas.getContext( 'gpupresent' ) as GPUCanvasContext;
+        this.context = <unknown>this.canvas.getContext( 'gpupresent' ) as GPUPresentationContext;
         
-        // Passing a GPUDevice to getSwapChainPreferredFormat is deprecated. 
-        // Pass a GPUAdapter instead, and update the calling code to 
-        // expect a GPUTextureFormat to be retured instead of a Promise.
-        // @ts-ignore
-        this.format = this.context.getSwapChainPreferredFormat( this.adapter );
+        this.format = this.context.getPreferredFormat( this.adapter );
         
-        this.swapChain = this.context.configureSwapChain( {
+        this.context.configure( {
 
             device: this.device,
 
@@ -80,9 +74,11 @@ export class App {
 
             colorAttachments: [ {
 
-                attachment: this.swapChain.getCurrentTexture().createView(),
+                view: this.context.getCurrentTexture().createView(),
 
-                loadValue: clearColor
+                loadValue: clearColor,
+
+                storeOp: 'store'
 
             } ]
 

@@ -8,9 +8,7 @@ export class App {
 
     public device: GPUDevice;
 
-    public context: GPUCanvasContext;
-
-    public swapChain: GPUSwapChain;
+    public context: GPUPresentationContext;
 
     public format: GPUTextureFormat = 'bgra8unorm';
 
@@ -94,15 +92,11 @@ export class App {
 
         this.device = await this.adapter.requestDevice();
 
-        this.context = <unknown>this.canvas.getContext( 'gpupresent' ) as GPUCanvasContext;
+        this.context = <unknown>this.canvas.getContext( 'gpupresent' ) as GPUPresentationContext;
         
-        // Passing a GPUDevice to getSwapChainPreferredFormat is deprecated. 
-        // Pass a GPUAdapter instead, and update the calling code to 
-        // expect a GPUTextureFormat to be retured instead of a Promise.
-        // @ts-ignore
-        this.format = this.context.getSwapChainPreferredFormat( this.adapter );
+        this.format = this.context.getPreferredFormat( this.adapter );
         
-        this.swapChain = this.context.configureSwapChain( {
+        this.context.configure( {
 
             device: this.device,
 
@@ -132,7 +126,7 @@ export class App {
     
         } );
     
-        let colorAttachment = colorTexture.createView();
+        let colorAttachmentView = colorTexture.createView();
 
         let depthStencilTexture = this.device.createTexture( {
 
@@ -154,7 +148,7 @@ export class App {
     
         } );
     
-        let depthStencilAttachment = depthStencilTexture.createView();
+        let depthStencilAttachmentView = depthStencilTexture.createView();
 
         this.samplers = this._samplerDescriptors.map( samplerDescriptor => {
 
@@ -162,11 +156,11 @@ export class App {
 
         });
 
-        return Promise.resolve( { colorAttachment, depthStencilAttachment } );
+        return Promise.resolve( { colorAttachmentView, depthStencilAttachmentView } );
 
     }
 
-    public InitRenderPass( clearColor: GPUColorDict, colorAttachment: GPUTextureView, depthStencilAttachment: GPUTextureView ) {
+    public InitRenderPass( clearColor: GPUColorDict, colorAttachmentView: GPUTextureView, depthStencilAttachmentView: GPUTextureView ) {
 
         this.commandEncoder = this.device.createCommandEncoder();
 
@@ -174,17 +168,19 @@ export class App {
 
             colorAttachments: [ {
 
-                attachment: colorAttachment,
+                view: colorAttachmentView,
 
-                resolveTarget: this.swapChain.getCurrentTexture().createView(),
+                resolveTarget: this.context.getCurrentTexture().createView(),
     
-                loadValue: clearColor
+                loadValue: clearColor,
+
+                storeOp: 'store'
 
             } ],
 
             depthStencilAttachment: {
 
-                attachment: depthStencilAttachment,
+                view: depthStencilAttachmentView,
     
                 depthLoadValue: 1.0,
     
