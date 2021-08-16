@@ -8,7 +8,7 @@ export class App {
 
     public device: GPUDevice;
 
-    public context: GPUPresentationContext;
+    public context: GPUCanvasContext;
 
     public format: GPUTextureFormat = 'bgra8unorm';
 
@@ -52,7 +52,7 @@ export class App {
 
         this.device = await this.adapter.requestDevice();
 
-        this.context = <unknown>this.canvas.getContext( 'gpupresent' ) as GPUPresentationContext;
+        this.context = <unknown>this.canvas.getContext( 'webgpu' ) as GPUCanvasContext;
         
         this.format = this.context.getPreferredFormat( this.adapter );
         

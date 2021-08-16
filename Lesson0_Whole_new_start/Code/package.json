@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@webgpu/glslang": "0.0.12",
-    "@webgpu/types": "^0.1.4",
+    "@webgpu/types": "^0.1.6",
     "three": "^0.125.2"
   }
 }
