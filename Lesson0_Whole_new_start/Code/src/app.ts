@@ -4,17 +4,25 @@ export class App {
 
     public context: GPUCanvasContext;
 
+    public devicePixelWidth: number;
+
+    public devicePixelHeight: number;
+
     public CreateCanvas( rootElement: HTMLElement ) {
 
         let width = rootElement.clientWidth;
 
         let height = rootElement.clientHeight;
 
+        this.devicePixelWidth = width * window.devicePixelRatio;
+
+        this.devicePixelHeight = height * window.devicePixelRatio;
+
         this.canvas = document.createElement( 'canvas' );
 
-        this.canvas.width = width;
+        this.canvas.width = this.devicePixelWidth;
 
-        this.canvas.height = height;
+        this.canvas.height = this.devicePixelHeight;
 
         this.canvas.style.width = '100%';
 

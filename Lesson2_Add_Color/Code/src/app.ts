@@ -20,17 +20,25 @@ export class App {
 
     public renderPipeline: GPURenderPipeline
 
+    public devicePixelWidth: number;
+
+    public devicePixelHeight: number;
+
     public CreateCanvas( rootElement: HTMLElement ) {
 
         let width = rootElement.clientWidth;
 
         let height = rootElement.clientHeight;
 
+        this.devicePixelWidth = width * window.devicePixelRatio;
+
+        this.devicePixelHeight = height * window.devicePixelRatio;
+
         this.canvas = document.createElement( 'canvas' );
 
-        this.canvas.width = width;
+        this.canvas.width = this.devicePixelWidth;
 
-        this.canvas.height = height;
+        this.canvas.height = this.devicePixelHeight;
 
         this.canvas.style.width = '100%';
 
@@ -86,7 +94,7 @@ export class App {
 
         this.renderPassEncoder = this.commandEncoder.beginRenderPass( renderPassDescriptor );
 
-        this.renderPassEncoder.setViewport( 0, 0, this.canvas.clientWidth, this.canvas.clientHeight, 0, 1 );
+        this.renderPassEncoder.setViewport( 0, 0, this.devicePixelWidth, this.devicePixelHeight, 0, 1 );
 
     }
 

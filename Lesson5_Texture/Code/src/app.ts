@@ -20,6 +20,10 @@ export class App {
 
     public renderPipeline: GPURenderPipeline;
 
+    public devicePixelWidth: number;
+
+    public devicePixelHeight: number;
+
     private _clearColor: GPUColorDict;
 
     public async CreateCanvas( rootElement: HTMLElement ) {
@@ -28,11 +32,15 @@ export class App {
 
         let height = rootElement.clientHeight;
 
+        this.devicePixelWidth = width * window.devicePixelRatio;
+
+        this.devicePixelHeight = height * window.devicePixelRatio;
+
         this.canvas = document.createElement( 'canvas' );
 
-        this.canvas.width = width;
+        this.canvas.width = this.devicePixelWidth;
 
-        this.canvas.height = height;
+        this.canvas.height = this.devicePixelHeight;
 
         this.canvas.style.width = '100%';
 
@@ -40,7 +48,12 @@ export class App {
 
         rootElement.appendChild( this.canvas );
 
-        return Promise.resolve( { width, height } );
+        return Promise.resolve( { 
+            
+            width: this.devicePixelWidth, 
+            height: this.devicePixelHeight
+        
+        } );
 
     }
 
@@ -72,9 +85,9 @@ export class App {
 
             size: {
     
-                width: width * window.devicePixelRatio,
+                width,
     
-                height: height * window.devicePixelRatio,
+                height,
     
                 depthOrArrayLayers: 1
     
@@ -94,9 +107,9 @@ export class App {
 
             size: {
     
-                width: width * window.devicePixelRatio,
+                width,
     
-                height: height * window.devicePixelRatio,
+                height,
     
                 depthOrArrayLayers: 1
     
@@ -158,7 +171,7 @@ export class App {
 
         }
 
-        // this.renderPassEncoder.setViewport( 0, 0, this.canvas.clientWidth, this.canvas.clientHeight, 0, 1 );
+        this.renderPassEncoder.setViewport( 0, 0, this.devicePixelWidth, this.devicePixelHeight, 0, 1 );
 
     }
 
