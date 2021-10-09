@@ -1,0 +1,308 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="650" height="500"
+    viewBox="-.5 -.5 621 443" style="background: rgb(255, 255, 255);">
+    <path d="M190 74v121.76" fill="none" stroke="#000" stroke-width="2" stroke-miterlimit="10"
+        pointer-events="stroke" />
+    <path d="M190 201.76l-4-8 4 2 4-2z" stroke="#000" stroke-width="2" stroke-miterlimit="10" pointer-events="all" />
+    <path d="M380 74v121.76" fill="none" stroke="#000" stroke-width="2" stroke-miterlimit="10"
+        pointer-events="stroke" />
+    <path d="M380 201.76l-4-8 4 2 4-2z" stroke="#000" stroke-width="2" stroke-miterlimit="10" pointer-events="all" />
+    <path fill="none" pointer-events="all" d="M170 44h40v20h-40z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe center;width:128px;height:1px;padding-top:54px;margin-left:127px"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:center" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:none;" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">内容进程时间线</div>
+                </div>
+            </div>
+        </foreignObject><text x="190" y="58" font-family="Helvetica" font-size="12" text-anchor="middle">内容进程时间线</text>
+    </switch>
+    <path fill="none" pointer-events="all" d="M360 44h40v20h-40z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe center;width:128px;height:1px;padding-top:54px;margin-left:320px"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:center" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">GPU 设备时间线</div>
+                </div>
+            </div>
+        </foreignObject><text x="380" y="58" font-family="Helvetica" font-size="12" text-anchor="middle">GPU
+            设备时间线</text>
+    </switch>
+    <path d="M200 104l161.82 19.04" fill="none" stroke="#000" stroke-width="2" stroke-miterlimit="10"
+        pointer-events="stroke" />
+    <path d="M367.78 123.74l-8.41 3.04 2.45-3.74-1.52-4.21z" stroke="#000" stroke-width="2" stroke-miterlimit="10"
+        pointer-events="all" />
+    <path d="M200 154l161.82 19.04" fill="none" stroke="#000" stroke-width="2" stroke-miterlimit="10"
+        pointer-events="stroke" />
+    <path d="M367.78 173.74l-8.41 3.04 2.45-3.74-1.52-4.21z" stroke="#000" stroke-width="2" stroke-miterlimit="10"
+        pointer-events="all" />
+    <path fill="none" pointer-events="all" d="M390 104h230v50H390z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe flex-start;width:228px;height:1px;padding-top:129px;margin-left:392px"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:left" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">验证调用<font>createBuffer
+                        </font>- OK<br />创建底层 API 对象 - OK</div>
+                </div>
+            </div>
+        </foreignObject><text x="392" y="133" font-family="Helvetica" font-size="12">验证调用 createBuffer - OK</text>
+    </switch>
+    <path fill="none" pointer-events="all" d="M210 84h150v20H210z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe center;width:148px;height:1px;padding-top:94px;margin-left:211px"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:center" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">创建缓冲区 A</div>
+                </div>
+            </div>
+        </foreignObject><text x="285" y="98" font-family="Helvetica" font-size="12" text-anchor="middle">创建缓冲区 A</text>
+    </switch>
+    <path fill="none" pointer-events="all" d="M210 134h150v20H210z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe center;width:148px;height:1px;padding-top:144px;margin-left:211px"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:center" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">将数据写入缓冲区 B</div>
+                </div>
+            </div>
+        </foreignObject><text x="285" y="148" font-family="Helvetica" font-size="12" text-anchor="middle">将数据写入缓冲区
+            B</text>
+    </switch>
+    <path fill="none" pointer-events="all" d="M0 84h190v20H0z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe flex-start;width:188px;height:1px;padding-top:94px;margin-left:2px"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:left" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">
+                        <div style="text-align:right"><span font-family="courier new">const b = createBuffer();</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </foreignObject><text x="2" y="98" font-family="Helvetica" font-size="12">const b = createBuffer();</text>
+    </switch>
+    <path fill="none" pointer-events="all" d="M0 144h190v20H0z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe flex-end;width:188px;height:1px;padding-top:154px;margin-left:0"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:right" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">
+                        <div><span font-family="courier new">q.writeBuffer(b)</span></div>
+                    </div>
+                </div>
+            </div>
+        </foreignObject><text x="188" y="158" font-family="Helvetica" font-size="12"
+            text-anchor="end">q.writeBuffer(b)</text>
+    </switch>
+    <path fill="none" pointer-events="all" d="M390 154h230v50H390z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe flex-start;width:228px;height:1px;padding-top:179px;margin-left:392px"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:left" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">验证调用<font>writeBuffer
+                        </font>- OK<br />真正将数据写入缓冲区 - OK</div>
+                </div>
+            </div>
+        </foreignObject><text x="392" y="183" font-family="Helvetica" font-size="12">验证调用 writeBuffer - OK</text>
+    </switch>
+    <path fill="none" pointer-events="all" d="M160 4h250v20H160z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe center;width:248px;height:1px;padding-top:14px;margin-left:161px"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:center" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">
+                        <font font-size="24">顺利情况</font>
+                    </div>
+                </div>
+            </div>
+        </foreignObject><text x="285" y="18" font-family="Helvetica" font-size="12" text-anchor="middle">顺利情况</text>
+    </switch>
+    <path d="M190 304v121.76" fill="none" stroke="#000" stroke-width="2" stroke-miterlimit="10"
+        pointer-events="stroke" />
+    <path d="M190 431.76l-4-8 4 2 4-2z" stroke="#000" stroke-width="2" stroke-miterlimit="10" pointer-events="all" />
+    <path d="M380 304v121.76" fill="none" stroke="#000" stroke-width="2" stroke-miterlimit="10"
+        pointer-events="stroke" />
+    <path d="M380 431.76l-4-8 4 2 4-2z" stroke="#000" stroke-width="2" stroke-miterlimit="10" pointer-events="all" />
+    <path fill="none" pointer-events="all" d="M170 274h40v20h-40z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe center;width:128px;height:1px;padding-top:284px;margin-left:127px"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:center" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">内容进程时间线</div>
+                </div>
+            </div>
+        </foreignObject><text x="190" y="288" font-family="Helvetica" font-size="12" text-anchor="middle">内容进程时间线</text>
+    </switch>
+    <path fill="none" pointer-events="all" d="M360 274h40v20h-40z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe center;width:128px;height:1px;padding-top:284px;margin-left:320px"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:center" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">GPU 设备时间线</div>
+                </div>
+            </div>
+        </foreignObject><text x="380" y="288" font-family="Helvetica" font-size="12" text-anchor="middle">GPU
+            设备时间线</text>
+    </switch>
+    <path d="M200 334l161.82 19.04" fill="none" stroke="#000" stroke-width="2" stroke-miterlimit="10"
+        pointer-events="stroke" />
+    <path d="M367.78 353.74l-8.41 3.04 2.45-3.74-1.52-4.21z" stroke="#000" stroke-width="2" stroke-miterlimit="10"
+        pointer-events="all" />
+    <path d="M200 384l161.82 19.04" fill="none" stroke="#000" stroke-width="2" stroke-miterlimit="10"
+        pointer-events="stroke" />
+    <path d="M367.78 403.74l-8.41 3.04 2.45-3.74-1.52-4.21z" stroke="#000" stroke-width="2" stroke-miterlimit="10"
+        pointer-events="all" />
+    <path fill="none" pointer-events="all" d="M390 334h230v50H390z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe flex-start;width:228px;height:1px;padding-top:359px;margin-left:392px"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:left" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">验证调用<font>createBuffer
+                        </font>-<b>ERROR</b></div>
+                </div>
+            </div>
+        </foreignObject><text x="392" y="363" font-family="Helvetica" font-size="12">验证调用 createBuffer - ERROR</text>
+    </switch>
+    <path fill="none" pointer-events="all" d="M210 314h150v20H210z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe center;width:148px;height:1px;padding-top:324px;margin-left:211px"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:center" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">创建缓冲区 B</div>
+                </div>
+            </div>
+        </foreignObject><text x="285" y="328" font-family="Helvetica" font-size="12" text-anchor="middle">创建缓冲区 B</text>
+    </switch>
+    <path fill="none" pointer-events="all" d="M210 364h150v20H210z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe center;width:148px;height:1px;padding-top:374px;margin-left:211px"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:center" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">将数据写入缓冲区 B</div>
+                </div>
+            </div>
+        </foreignObject><text x="285" y="378" font-family="Helvetica" font-size="12" text-anchor="middle">将数据写入缓冲区
+            B</text>
+    </switch>
+    <path fill="none" pointer-events="all" d="M0 314h190v20H0z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe flex-start;width:188px;height:1px;padding-top:324px;margin-left:2px"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:left" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">
+                        <div style="text-align:right"><span font-family="courier new">const b = createBuffer();</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </foreignObject><text x="2" y="328" font-family="Helvetica" font-size="12">const b = createBuffer();</text>
+    </switch>
+    <path fill="none" pointer-events="all" d="M0 374h190v20H0z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe flex-end;width:188px;height:1px;padding-top:384px;margin-left:0"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:right" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">
+                        <div><span font-family="courier new">q.writeBuffer(b)</span></div>
+                    </div>
+                </div>
+            </div>
+        </foreignObject><text x="188" y="388" font-family="Helvetica" font-size="12"
+            text-anchor="end">q.writeBuffer(b)</text>
+    </switch>
+    <path fill="none" pointer-events="all" d="M390 384h230v50H390z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe flex-start;width:228px;height:1px;padding-top:380px;margin-left:392px"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:left" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">验证写入缓冲区调用<font>
+                            writeBuffer</font>-<b>ERROR<br/></b>(因为缓冲区 B 本身已经错误)</div>
+                </div>
+            </div>
+        </foreignObject><text x="392" y="413" font-family="Helvetica" font-size="12">验证写入缓冲区调用 writeBuffer -
+            ERROR</text>
+    </switch>
+    <path fill="none" pointer-events="all" d="M160 234h250v20H160z" />
+    <switch transform="translate(-.5 -.5)">
+        <foreignObject style="text-align:left" pointer-events="none" width="100%" height="100%"
+            requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" overflow="visible">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="align-items:unsafe center;justify-content:unsafe center;width:248px;height:1px;padding-top:244px;margin-left:161px"
+                display="flex">
+                <div style="box-sizing:border-box;text-align:center" font-size="0">
+                    <div style="line-height:1.2;white-space:normal;word-wrap:normal" display="inline-block"
+                        font-size="12" font-family="Helvetica" color="#000" pointer-events="all">
+                        <font font-size="24">错误情况</font>
+                    </div>
+                </div>
+            </div>
+        </foreignObject><text x="285" y="248" font-family="Helvetica" font-size="12" text-anchor="middle">错误情况</text>
+    </switch>
+</svg>
