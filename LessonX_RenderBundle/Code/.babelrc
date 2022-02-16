@@ -1,0 +1,4 @@
+{
+    "plugins": ["@babel/plugin-syntax-import-meta"],
+    "presets": ["@babel/preset-typescript"]
+}

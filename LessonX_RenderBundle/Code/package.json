@@ -1,0 +1,17 @@
+{
+  "name": "lessonX-renderbundle",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^2.3.8"
+  },
+  "dependencies": {
+    "@webgpu/glslang": "0.0.12",
+    "@webgpu/types": "^0.1.6",
+    "three": "^0.125.2"
+  }
+}

@@ -5,7 +5,7 @@ export default
 };
 
 struct Output {
-  @location(0)  vUV: vec2<f32>;
+  @location(0)  vColor: vec4<f32>;
   @builtin(position)  Position: vec4<f32>;
 };
 
@@ -14,11 +14,14 @@ var<uniform> uniforms: Uniforms;
 
 @stage(vertex) 
 fn main(
+  @builtin(instance_index)  instanceIdx : u32,
   @location(0)  aVertexPosition: vec3<f32>,
-  @location(1)  aVertexUV: vec2<f32>
+  @location(1)  aVertexColor: vec4<f32>
 ) -> Output {
   var output: Output;
-  output.Position = uniforms.uPMatrix * uniforms.uMVMatrix * vec4<f32>(aVertexPosition, 1.0);
-  output.vUV = aVertexUV;
+  let i: f32 = f32(instanceIdx);
+  let pos: vec4<f32> = vec4<f32>(aVertexPosition.x + i / 0.5, aVertexPosition.y, aVertexPosition.z, 1.0);
+  output.Position = uniforms.uPMatrix * uniforms.uMVMatrix * pos;
+  output.vColor = aVertexColor;
   return output;
 }`;

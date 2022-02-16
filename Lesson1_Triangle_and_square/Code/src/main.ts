@@ -36,6 +36,9 @@ let main = async () => {
 
     let triangleUniformBufferView = new Float32Array( pMatrix.toArray().concat( triangleMVMatrix.toArray() ) );
 
+    console.log(pMatrix.toArray())
+    console.log(triangleMVMatrix.toArray())
+
     let squareUniformBufferView = new Float32Array( pMatrix.toArray().concat( squareMVMatrix.toArray() ) );
 
     let backgroundColor = { r: 0, g: 0, b: 0, a: 1.0 };
