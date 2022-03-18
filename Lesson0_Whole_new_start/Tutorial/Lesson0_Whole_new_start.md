@@ -8,7 +8,7 @@
 
 2. 目前浏览器对于 WebGPU 的实现和支持仍处于实验阶段，可能会发生一些因为浏览器实现导致的 Bug 或错误；另外，开启浏览器的试验功能可能会降低浏览器的安全性，所以你不应该使用学习 WebGPU 开发的浏览器作为主力浏览器，例如请不要在这个浏览器中浏览、输入个人隐私信息、不要进行网页支付等。
 
-3. 考虑到 WebGPU 正式投入生产环境应该是数年后的事情，所以本教程中将会使用大量新的 ECMA Script 的新特性，这些特性可能并不被当下的浏览器和 JavaScript 引擎所支持。
+3. 考虑到 WebGPU 正式投入生产环境应该是未来的事情，所以本教程中将会使用大量新的 ECMA Script 的新特性，这些特性可能并不被当下的浏览器和 JavaScript 引擎所支持。
 
 4. 本系列的教程是针对那些已经具备相应编程知识但没有实际 3D 图形经验的人的；目标是让学习者创建并运行代码，并且明白代码其中的含义，从而快速地创建自己的 3D Web 页面。
 
@@ -92,7 +92,7 @@ WebGL 使用 OpenGL ES Shading Language，也就是通常所说的 GLSL ES 2.0/3
 
 但是基于文本的着色器语言给 WebGL 实现，也就是浏览器厂商带来了非常多的困难和 Bug，这些问题与语言本身没有关系，而是完全由基于文本字符串这一特性带来的。所以在 WebGPU 标准创建伊始，就有人[提出](https://github.com/gpuweb/gpuweb/issues/44)不要使用基于文本字符串的着色器语言，避免重走 WebGL 的弯路。
 
-为此，标准的设计者提出了两种方案。
+为此，标准的设计者曾提出了两种方案。
 
 - 以 Apple 为代表的厂商，建议结合其他着色器语言的优点，重新发明一种新的着色器语言，Apple 称之为 WHLSL - Web High Level Shading Language。WHLSL 是一个力图追求完美的着色器语言，但是它的实现过于复杂，所以并没有活到面世那天。Apple 在失败后，重新提出了另一个方案，即 WSL - Web Shading Language，并且 Apple 坚持认为基于文本字符串的着色器语言更加适合 WebGPU 的特质，尤其是在 Web 和 Node.js 上 JavaScript 本身已经非常成熟的字符串处理技术。目前 Safari 上的 WebGPU 实现正是使用了这一语言。
 
@@ -162,7 +162,7 @@ SPIR-V 作为 Vulkan 的着色器标准，所有权和管理权属于 Khronos Gr
 
 - 本课程的 `wgsl` 分支使用 WGSL 作为着色器语言，理论上可以直接运行在所有支持 WebGPU 的浏览器中。推荐使用该分支作为学习材料。
 
-- 本课程的 `glsl-spirv` 分支使用 GLSL 4.5 作为着色器语言，使用 [@webgpu/glslang](https://www.npmjs.com/package/@webgpu/glslang) 把 GLSL 通过 WebAssembly 编译成 Vulkan 的 SPIR-V。也就是说，该分支目前不支持在 MacOS 上使用 Safari 开发调试。
+- 本课程的 `glsl-spirv` 分支使用 GLSL 4.5 作为着色器语言，使用 [@webgpu/glslang](https://www.npmjs.com/package/@webgpu/glslang) 把 GLSL 通过 WebAssembly 编译成 Vulkan 的 SPIR-V。此分支暂时将停止更新，建议读者使用 `wgsl` 分支的代码。
 
 - 本课程使用 TypeScript 编写，主要原因是 TypeScript 作为一个强类型语言和 JavaScript 的超集，配合诸如 VS Code 等 IDE 可以很好的给出语法提示和错误纠正，WebGPU 工作组给我们提供了一个 WebGPU 的类型定义文件 [@webgpu/types](https://www.npmjs.com/package/@webgpu/types)， 通过语法提示我们可以更好的学习 WebGPU 标准。
 
@@ -194,7 +194,7 @@ SPIR-V 作为 Vulkan 的着色器标准，所有权和管理权属于 Khronos Gr
 
 ```xml
 <body>
-    <script src="./main.ts"></script>
+    <script type="module" src="./main.ts"></script>
 </body>
 ```
 
@@ -257,7 +257,7 @@ window.addEventListener( 'DOMContentLoaded', main );
 ```typescript
     public InitWebGPU() {
 
-        this.context = <unknown>this.canvas.getContext( 'gpupresent' ) as GPUCanvasContext;
+        this.context = <unknown>this.canvas.getContext( 'webgpu' ) as GPUCanvasContext;
 
         if ( this.context ) {
 
