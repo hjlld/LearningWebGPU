@@ -272,7 +272,7 @@ window.addEventListener( 'DOMContentLoaded', main );
     }
 ```
 
-在这段代码中，我们使用 `canvas.getContext( 'gpupresent' )` 来获取上下文，`gpupresent` 这个字眼代表着 GPU 的呈现过程，是 WebGPU 用于创建上下文的关键字。由于 `canvas.getContext()` 函数会根据传入的字符串的不同返回不同的绘制上下文，甚至返回错误或 `null`，所以我们并不知道这条命令的结果，所以我们要先把它的返回值转换为 `unknown` 类型，再转换为 `GPUCanvasContext` 类型。
+在这段代码中，我们使用 `canvas.getContext( 'webgpu' )` 来获取上下文，`webgpu` 这个字眼代表着 GPU 的呈现过程，是 WebGPU 用于创建上下文的关键字。由于 `canvas.getContext()` 函数会根据传入的字符串的不同返回不同的绘制上下文，甚至返回错误或 `null`，所以我们并不知道这条命令的结果，所以我们要先把它的返回值转换为 `unknown` 类型，再转换为 `GPUCanvasContext` 类型。
 
 如果我们成功的获取了上下文，你将会在控制台中看到祝贺的文本，反之程序将抛出一个错误提示。
 
