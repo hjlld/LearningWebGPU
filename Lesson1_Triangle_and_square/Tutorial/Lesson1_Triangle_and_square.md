@@ -1,3 +1,7 @@
+---
+typora-copy-images-to: image
+---
+
 # Lesson1 三角和方块的故事
 
 ## 教程说明
@@ -705,13 +709,13 @@ layout(binding = 0) uniform Uniforms {
 ```typescript
         let vxModule: GPUShaderModule = this.device.createShaderModule( {
 
-            code: this.glslang.compileGLSL( vxCode, 'vertex' )
+            code: vxCode
 
         } );
 
         let fxModule: GPUShaderModule = this.device.createShaderModule( {
 
-            code: this.glslang.compileGLSL( fxCode, 'fragment' )
+            code: fxCode
 
         } );
 ```
@@ -838,15 +842,27 @@ layout(binding = 0) uniform Uniforms {
 
 我们要做的基本就是将这些 JavaScript 中的数组，绑定到渲染通道中，以便渲染管线中的着色器可以正确的读取它们，也就是将数据从 CPU 端上传到 GPU 端。
 
-在本教程的之前版本，我们使用的方法是新建一个 `GPUBuffer` 然后使用 `setSubData()` 方法来将 JavaScript 中的数据上传到 GPU 中，但实际上这个接口已经被从 WebGPU 标准中移除了。我们在之前这么使用是因为 `setSubData()` 接口比较简单，而且在现在并不多的 WebGPU 示例中，大部分都使用了这个接口，所以为了兼容考虑，Chrome Canary 也依然保留了对它的支持。
+实际上，简简单单的一句话“将数据从 CPU 端上传到 GPU 端”实际上掩盖了底层复杂的运作原理，在本教程仓库中附带的 WebGPU 解释文档中略微详细的讲述了这一底层过程。
 
-但是，这个方法并不是值得信赖的，因为从 CPU 将数据上传到 GPU 本身是一个复杂的异步过程，但是 `setSubData()` 方法本身已经是原子操作了，让你无法深入其中，而唯一能做的就是信赖 WebGPU 实现，也就是浏览器能够正确处理这个过程。所以这个方法的早期实现版本，早在 2019 年 4 月就已经被[移除](https://github.com/gpuweb/gpuweb/commit/de471bf370118f21340de4652c1fcd4c7e2b310f)了。
+首先，现代浏览器基本上都是基于多进程的。在早期的时候，浏览器往往将所有功能的大杂烩都塞进同一个进程，不但造成了安全问题，也让阻碍了性能的提升。但是现在情况不同了，浏览器会根据不同的标签页、不同的功能，启动多个操作系统进程，每个进程都有自己的边界和任务。在隔离的进程中实现了安全保护，防止用户隐私信息泄露，例如即使在同一个页面中，广告内容是会运行在一个单独的进程中的，以防止广告内容进行恶意操作；另外，由于诸如崩溃处理、浏览器扩展、GPU 功能等模块被独立到各自的专门进程，使得浏览器的整体性能也得到了提升。
 
-另一方面，本教程现在使用的方法是 `createBufferMapped()`，它的问题在于：它用起来实在太麻烦了。所以，标准制定者仍在寻找更便捷、更优化、更合理的方式，解决 GPU 数据上传的问题。目前看来，`GPUQueue.writeBuffer()` 会是一个很好的解决方案。但是这个目前 Chrome Canary 还未能实现这个接口。所以我们依然使用 `createBufferMapped()`。
+![Edge浏览器多进程架构](./image/edge3.png)
 
-`createBufferMapped()` 方法被正式遗弃！我们更新为 `device.createBuffer()` 方法。感谢 @mango-FullStack 提出的 [issue](https://github.com/hjlld/LearningWebGPU/issues/11)。
+上面这张图来自由 Edge 团队撰写的《微软 Edge 的多进程架构》一文，有兴趣的读者可以在[这里](https://blogs.windows.com/msedgedev/2020/09/30/microsoft-edge-multi-process-architecture/)读到完整原文，继续进行深入的探索。WebGPU 比 WebGL 更具革新性的一点正在于，WebGPU 对于浏览器的开发者更加友好。适应现代多线程的浏览器架构正是其中重要的一环。所以将数据从 CPU 端上传到 GPU 端实际经历了多个步骤。
 
-为了方便使用这个麻烦的方法，我们新建了一个私有方法 `_CreateGPUBuffer()` 来完成这一操作。
+|                  | 普通的 `ArrayBuffer` | **共享内存** | **可映射的 GPU 缓存** | **不可映射的 GPU 缓存（或纹理）** |
+| ---------------- | -------------------- | ------------ | --------------------- | --------------------------------- |
+| 内容进程中的 CPU | **可见**             | **可见**     | 不可见                | 不可见                            |
+| GPU 进程中的 CPU | 不可见               | **可见**     | **可见**              | 不可见                            |
+| GPU              | 不可见               | 不可见       | **可见**              | **可见**                          |
+
+首先，当你声明了一个 JavaScript 中的类型化数组时，与其对应的内存缓冲区可以被浏览器内容进程中的 CPU 操作；内容进程的 CPU 将其“暂存”到进程间的共享内存中，使得浏览器 GPU 进程中的 CPU 可以获得访问权限；随后 GPU 进程中的 CPU 将其标记为可映射的 GPU 缓存，使得 GPU 对其可见；以上步骤均发生在位于计算机主板上的 CPU 和内存中，随后 GPU 会将数据转移到 GPU 专用的内存，也就是位于独立显卡上的显存中，完成最后一个步骤，到这里为止，才完成了数据从 CPU 端上传到 GPU 端的完整过程。
+
+WebGPU 解释文档中指出，在极少数情况下，浏览器可以在内容进程中直接将数据写入映射缓冲区；另外，对于集成显卡来说，GPU 和 CPU 共享主板上的内存芯片，大多数的 GPU 内存分配都处于相同的物理位置，在不违反缓存一致性原则的前提下，CPU 和 GPU 间的数据交换，依然需要映射操作。
+
+在早期的 WebGPU 标准的设计中，实现这一过程的方法是是新建一个 `GPUBuffer` 然后使用 `setSubData()` 接口来将 JavaScript 中的数据上传到 GPU 中。这个方法的好处在于它的使用非常简单，而且在当时市面上流传的并不多的 WebGPU 示例中，大部分都使用了这个接口。但是，这个方法并不是值得信赖的，因为正如上面你所看到的，从 CPU 将数据上传到 GPU 本身是一个复杂的异步过程，但是 `setSubData()` 方法本身已经是原子操作了，让你无法深入其中，而唯一能做的就是信赖 WebGPU 实现，也就是浏览器能够正确处理这个过程；另外这个方法对于浏览器开发者来说也非常不方便。所以这个方法的早期实现版本，早在 2019 年 4 月就已经被[移除](https://github.com/gpuweb/gpuweb/commit/de471bf370118f21340de4652c1fcd4c7e2b310f)了。随后，WebGPU 标准又设计了一个名为 `createBufferMapped()` 的接口，这个接口走向了另外一个极端 —— 它使用起来实在是太麻烦了。最终 WebGPU 标准的制定者找到了比较好的实现方式，即 `device.createBuffer()` 方法和 `GPUQueue.writeBuffer()` 方法。
+
+创建 GPU 缓存并填充数据是一个在图形开发中经常需要用到的操作，为了方便复用，我们新建了一个私有方法 `_CreateGPUBuffer()` 来封装这一过程。
 
 ```typescript
     private _CreateGPUBuffer( typedArray: TypedArray, usage: GPUBufferUsageFlags ) {
@@ -875,17 +891,33 @@ layout(binding = 0) uniform Uniforms {
 
 ```
 
-首先我们使用 GPU 设备创建了一个映射缓存用于储存顶点坐标位置。根据 WebGPU 标准，这个映射缓存应当是一个长度为 2 的序列，其中第 0 个元素是 `GPUBuffer`，第 1 个元素则是与之“映射”的 CPU 中的 `ArrayBuffer`。在这里，我们使用 JavaScript 中的解构语法，获得了这个映射缓存的两个元素。
+> 一个 `GPUBuffer` 代表了一个可以用于 GPU 操作的内存区块。数据使用线性的布局方式储存，这意味着每个分配的字节可以通过其相对于开始位置的偏移量进行寻址，另外根据操作的不同存在对齐限制。某些 `GPUBuffer` 可以被映射，这使得该内存块可以通过一个被称为其“映射”的 `ArrayBuffer` 来访问。
+>
+> —— 摘自 [WebGPU 标准](https://gpuweb.github.io/gpuweb/#buffer-interface)
 
-其中，和前面提到的步进的概念类似，GPU 中缓存的单位是 `byte`，所以这个缓存的大小是应当是传入的类型化数组的 `byteLength` 而不是 `length`。
+让我们来看下这个方法。首先我们使用 `device.createBuffer()` 方法来创建一个新的 GPU 缓存，这个方法接受一个描述符作为参数，其中包括如下定义：
 
-这个缓存有两个用途，首先他有自身的绘制用途，也就是顶点位置、顶点索引或变换矩阵；其次，这块缓存被创建后，我们将从 JavaScript 中拷贝数据到这块缓存中，所以它还要设置一个名为“拷贝目标”的用途，即 `GPUBufferUsage.COPY_DST`。
+- GPU 缓存的长度（必选参数）：和前面提到的步进的概念类似，GPU 中缓存的单位是 `byte`，所以这个缓存的大小是应当是传入的类型化数组的 `byteLength` 而不是 `length`。
+- GPU 缓存的用途（必选参数）：一个 GPU 缓存可能有多个用途，首先它有自身的绘制用途，也就是顶点位置、顶点索引或变换矩阵等等，在这个方法中我们设计为从 `_CreateGPUBuffer()` 的入参中读取，即 `usage` 变量；其次，这块缓存被创建后，我们将从 JavaScript 中拷贝数据到这块缓存中，所以它还要设置一个名为“拷贝目标”的用途，即 `GPUBufferUsage.COPY_DST`。在 WebGPU 中，当我们需要同时设置两个用途的时候，我们使用 JavaScript 中的按位“或”操作符将其连接在一起。你可以在 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators#Bitwise_OR) 文档中，找到这个操作符的说明。
+- 在创建时已映射（可选参数，默认为 `false`）：这个参数如果设置为 `true` 保证了即使缓冲区最终创建失败，但是在内容时间线上，其映射的内存范围仍然会显示为可以写入/读取，直到它被取消映射。
 
-在 WebGPU 中，当我们需要同时设置两个用途的时候，我们使用 JavaScript 中的按位“或”操作符将其连接在一起。你可以在 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators#Bitwise_OR) 文档中，找到这个操作符的说明。
+其中，GPU 缓存的长度和用途是必选参数，它们一旦在 GPU 缓存被创建后，便不可修改。
 
-然后，我们使用类型化数组和 `ArrayBuffer` 的一系列操作，将传入的数据绑定到这个映射缓存的 CPU 部分。
+每个 GPU 缓存都在内容时间线上都有一个当前的**缓存状态**，其中包含如下五中形式：
 
-最后，我们使用 `gpuBuffer.unmap()` 接口，关闭映射操作，并返回这个 `GPUBuffer`。
+- **已映射（mapped）**：允许 CPU 对当前 GPU 缓存的内容进行操作。
+- **在创建时已映射（mapped at cration）**：当前 GPU 缓存刚刚被创建，并且允许 CPU 对当前 GPU 缓存的内容进行操作。
+- **待映射（mapping pending）**：即当前 GPU 缓存正被提供给 CPU 对其内容进行操作。
+- **未映射（unmapped）**：允许 GPU 对当前 GPU 缓存进行操作
+- **已销毁（destroyed）**：当前 GPU 缓存将不能进行任何操作，除了 `destroy` 销毁。
+
+到这里，我们使用 `devicd.createBuffer()` 方法创建完毕一个 GPU 缓存。接下来我们需要处理，如何将数据填充到这个 GPU 缓存中去。
+
+> 应用程序可以请求映射一个 `GPUBuffer`，这样他们就可以通过代表 `GPUBuffer` 部分分配的 `ArrayBuffer` 来访问其内容。映射 `GPUBuffer` 是通过`mapAsync()` 异步请求的，这样用户代理可以确保 GPU 在应用程序访问其内容之前完成对 `GPUBuffer` 的使用。一旦 `GPUBuffer` 被映射，应用程序可以通过 `getMappedRange` 同步请求访问其内容的范围。已映射的 `GPUBuffer` 不能被 GPU 使用，必须在使用它的工作被提交到队列时间线之前使用 `unmap` 来解除映射。
+>
+> —— 摘自 [WebGPU 标准](https://gpuweb.github.io/gpuweb/#buffer-mapping)
+
+因为在 `device.createBuffer()` 方法中，我们设定了 `mappedAtCreation: true` ，所以此时的 GPU 缓存已经是“在创建时已映射（mapped at cration）”的状态，所以这里我们无需调用 `mapAsync()` 方法，而只需要直接使用 `getMappedRange()` 方法获取代表此 GPU 缓存的 `ArrayBuffer`。然后，我们使用类型化数组的 `set()` 方法，将传入的数据绑定到这个映射缓存的 CPU 部分。最后，我们使用 `gpuBuffer.unmap()` 接口，关闭映射操作，并返回这个 `GPUBuffer`。
 
 得到映射完毕的 `GPUBuffer` 之后，我们再将它设定到当前的渲染通道中。
 
