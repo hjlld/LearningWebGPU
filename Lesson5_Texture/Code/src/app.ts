@@ -141,9 +141,11 @@ export class App {
 
                 resolveTarget: this.context.getCurrentTexture().createView(),
     
-                loadValue: clearColor,
+                clearValue: clearColor,
 
-                storeOp: 'store'
+                storeOp: 'store',
+
+                loadOp: 'clear'
 
             } ],
 
@@ -151,11 +153,15 @@ export class App {
 
                 view: depthStencilAttachmentView,
 
-                depthLoadValue: 1.0,
+                depthLoadOp: 'clear',
+    
+                depthClearValue: 1.0,
     
                 depthStoreOp: 'store',
     
-                stencilLoadValue: 0,
+                stencilClearValue: 1.0,
+                
+                stencilLoadOp: 'clear',
     
                 stencilStoreOp: 'store'
     
@@ -525,7 +531,7 @@ export class App {
 
     public Present() {
 
-        this.renderPassEncoder.endPass();
+        this.renderPassEncoder.end();
 
         this.device.queue.submit( [ this.commandEncoder.finish() ] );
 

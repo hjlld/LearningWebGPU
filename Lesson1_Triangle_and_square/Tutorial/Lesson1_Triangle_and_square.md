@@ -420,9 +420,13 @@ interface GPUCommandEncoder {
 
             colorAttachments: [ {
 
-                attachment: this.swapChain.getCurrentTexture().createView(),
+                view: this.context.getCurrentTexture().createView(),
 
-                loadValue: clearColor
+                loadOp: 'clear',
+
+                storeOp: 'store',
+
+                clearValue: clearColor
 
             } ]
 
@@ -437,24 +441,27 @@ interface GPUCommandEncoder {
 
 ```typescript
 dictionary GPURenderPassDescriptor : GPUObjectDescriptorBase {
-    required sequence<GPURenderPassColorAttachmentDescriptor> colorAttachments;
-    GPURenderPassDepthStencilAttachmentDescriptor depthStencilAttachment;
+    required sequence<GPURenderPassColorAttachment?> colorAttachments;
+    GPURenderPassDepthStencilAttachment depthStencilAttachment;
+    GPUQuerySet occlusionQuerySet;
+    GPURenderPassTimestampWrites timestampWrites = [];
 };
 ```
 
-根据 WebGPU 标准，这个参数有两个字段，一个是必填字段 `colorAttachments`，需要注意的是这是一个序列，对应到 JavaScript 中，也就说它应该是一个数组；另外一个是 `depthStencilAttachment`。
+根据 WebGPU 标准，这个参数有四个字段，一个是必填字段 `colorAttachments`，需要注意的是这是一个序列，对应到 JavaScript 中，也就说它应该是一个数组；另外还有 `depthStencilAttachment`、`occlusionQuerySet`、`timestampWrites`。
 
 所谓的 `colorAttachments` 是指一个附加在当前渲染通道的数组，用于储存（或者临时储存）图像信息，我们通常只会把渲染通道的结果存成一份，也就是只渲染到一个目标中，但是在某些高级渲染技巧中，我们需要把渲染结果储存成多份，也就是渲染到多个目标上，这就是它为什么被设计成一个数组的原因；而 `depthStencilAttachment` 则是指一个附加在当前渲染通道用于储存渲染通道的深度信息和模板信息的附件。
 
-在本节课中，我们不需要深度信息，因为本质上我们画的是两个二维图形，所以不需要处理深度、遮挡、混合这些事情。所以我们仅设置了 `colorAttachments`，在 WebGPU 标准中，它其中的每一个成员都被定义为叫做 `GPURenderPassColorAttachmentDescriptor`的类型。
+在本节课中，我们不需要深度信息，因为本质上我们画的是两个二维图形，所以不需要处理深度、遮挡、混合这些事情。所以我们仅设置了 `colorAttachments`，在 WebGPU 标准中，它其中的每一个成员都被定义为叫做 `GPURenderPassColorAttachment`的类型。
 
 ```typescript
-dictionary GPURenderPassColorAttachmentDescriptor {
-    required GPUTextureView attachment;
+dictionary GPURenderPassColorAttachment {
+    required GPUTextureView view;
     GPUTextureView resolveTarget;
 
-    required (GPULoadOp or GPUColor) loadValue;
-    GPUStoreOp storeOp = "store";
+    GPUColor clearValue;
+    required GPULoadOp loadOp;
+    required GPUStoreOp storeOp;
 };
 ```
 
@@ -544,7 +551,7 @@ dictionary GPURenderPipelineDescriptor : GPUPipelineDescriptorBase {
 
 #### `vertexStage` 和 `fragmentStage` | 顶点着色器和片元着色器
 
-首先是必填字段 `vertexStage`，通俗的翻译大概是“顶点阶段”，浪漫一些的话可以称为“顶点的舞台”，也就是我们处理顶点数据的地方，对应于 WebGL 中的顶点着色器。
+首先是必填字段 `vertexStage`，通俗的翻译大概是“顶点阶段”，也就是我们处理顶点数据的地方，对应于 WebGL 中的顶点着色器。
 
 然后是可选字段 `fragmentStage`，也就是我们处理片元信息的地方，对应于 WebGL 中的片元着色器。所谓的片元，你可以简单的理解为“像素”，所以在 DirectX 等图形框架中，也被称为像素着色器。
 

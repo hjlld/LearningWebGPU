@@ -86,9 +86,11 @@ export class App {
 
                 view: this.context.getCurrentTexture().createView(),
 
-                loadValue: clearColor,
+                loadOp: 'clear',
 
-                storeOp: 'store'
+                storeOp: 'store',
+
+                clearValue: clearColor
 
             } ]
 
@@ -310,7 +312,7 @@ export class App {
 
     public Present() {
 
-        this.renderPassEncoder.endPass();
+        this.renderPassEncoder.end();
 
         this.device.queue.submit( [ this.commandEncoder.finish() ] );
 
