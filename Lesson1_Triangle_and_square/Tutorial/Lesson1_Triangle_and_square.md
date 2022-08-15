@@ -469,9 +469,9 @@ dictionary GPURenderPassColorAttachment {
 
 还剩一下一个可选字段 `resolveTarget` 用于多重采样，我们将在后面的课程中用到它，到时候我们再详细解释。
 
-回到代码，我们声明了一个类型为 `GPURenderPassDescriptor` 的局部变量 `renderPassDescriptor`，用于描述我们即将开始的渲染通道。在其中我们只使用了一个颜色附件，并且没有使用深度和模板附件。在颜色附件中，我们指定把渲染结果储存在交换链的当前图像上，也就是 `this.swapChain.getCurrentTexture().createView(),` 。
+回到代码，我们声明了一个类型为 `GPURenderPassDescriptor` 的局部变量 `renderPassDescriptor`，用于描述我们即将开始的渲染通道。在其中我们只使用了一个颜色附件，并且没有使用深度和模板附件。在颜色附件中，我们指定把渲染结果储存在交换链的当前图像上，也就是 `this.context.getCurrentTexture().createView(),` 。
 
-`this.swapChain.getCurrentTexture()` 还比较好理解，就是获取当前的纹理图像，但为什么还要 `createView()` 呢？
+`this.context.getCurrentTexture()` 还比较好理解，就是获取当前的纹理图像，但为什么还要 `createView()` 呢？
 
 我们用 JavaScript 中的类型化数组来类比，不管是 `Float32Array` 还是 `Uint16Array`，每一个类型化数组的背后都存在着内存中的一段缓冲区，也就是 `ArrayBuffer`；而 `ArrayBuffer` 是看不见闻不到的，如果你想查看 `ArrayBuffer` 中的东西，就需要把用类型化数组来表示它；我们知道，基于同一个 `ArrayBuffer` 可以建立不同类型的类型化数组，它们的数据虽然各不相同，但都是对同一个内存缓冲区的描述。
 
